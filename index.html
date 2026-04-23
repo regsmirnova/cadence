@@ -1,0 +1,2539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cadence — Voice & Speaking Training</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF7;
+    --surface: #FFFFFF;
+    --ink: #0A0A0A;
+    --ink-2: #404040;
+    --muted: #737373;
+    --line: #E8E6E0;
+    --line-2: #F0EEE8;
+    --accent: #0A0A0A;
+    --success: #2F7D4F;
+    --warn: #B5651D;
+    --radius-sm: 10px;
+    --radius: 16px;
+    --radius-lg: 24px;
+    --shadow-1: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 0.5px rgba(0,0,0,0.06);
+    --shadow-2: 0 8px 28px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+  }
+  .serif { font-family: 'Instrument Serif', Georgia, serif; letter-spacing: -0.01em; font-weight: 400; }
+  button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
+  input, textarea, select { font-family: inherit; color: inherit; }
+  ::selection { background: #0A0A0A; color: #FAFAF7; }
+
+  /* LAYOUT */
+  .app { min-height: 100vh; display: flex; flex-direction: column; }
+  .nav {
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    background: rgba(250,250,247,0.8);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; font-size: 15px; letter-spacing: -0.02em;
+  }
+  .logo-mark {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: var(--ink); display: grid; place-items: center;
+    position: relative; overflow: hidden;
+  }
+  .logo-mark::after {
+    content: ''; position: absolute; inset: 5px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, transparent 40%, #FAFAF7 40%, #FAFAF7 55%, transparent 55%, transparent 70%, #FAFAF7 70%, #FAFAF7 85%, transparent 85%);
+  }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-link {
+    padding: 8px 14px; font-size: 13.5px; font-weight: 500; color: var(--muted);
+    border-radius: 999px; transition: all 0.2s var(--ease);
+  }
+  .nav-link:hover { color: var(--ink); background: var(--line-2); }
+  .nav-link.active { color: var(--ink); background: var(--line-2); }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .streak-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; font-size: 12.5px; font-weight: 500;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+  }
+  .streak-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); }
+
+  main { flex: 1; padding: 48px 32px 80px; }
+  .container { max-width: 880px; margin: 0 auto; }
+  .container-wide { max-width: 1140px; margin: 0 auto; }
+
+  /* SCREENS */
+  .screen { display: none; animation: fadeUp 0.45s var(--ease); }
+  .screen.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* TYPE */
+  .eyebrow {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+  h1.display { font-size: 56px; line-height: 1.05; font-weight: 600; letter-spacing: -0.035em; }
+  h1.display .serif { font-style: italic; color: var(--ink-2); }
+  h2.section { font-size: 32px; font-weight: 600; letter-spacing: -0.025em; line-height: 1.1; }
+  h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.015em; }
+  p.lead { font-size: 17px; color: var(--ink-2); line-height: 1.55; max-width: 60ch; }
+  p.body { font-size: 15px; color: var(--ink-2); line-height: 1.6; }
+  .muted { color: var(--muted); }
+
+  /* CARDS */
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 28px; transition: all 0.3s var(--ease);
+  }
+  .card.hoverable:hover { border-color: #D4D1C8; transform: translateY(-1px); box-shadow: var(--shadow-2); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 22px; font-size: 14px; font-weight: 500;
+    border-radius: 999px; transition: all 0.2s var(--ease);
+    cursor: pointer; white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--ink); color: var(--bg);
+  }
+  .btn-primary:hover { background: #2a2a2a; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-ghost {
+    background: transparent; color: var(--ink); border: 1px solid var(--line);
+  }
+  .btn-ghost:hover { background: var(--surface); border-color: #D4D1C8; }
+  .btn-sm { padding: 8px 16px; font-size: 13px; }
+  .btn-lg { padding: 16px 28px; font-size: 15px; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+  /* INPUTS */
+  .input {
+    width: 100%; padding: 12px 14px; font-size: 14px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm);
+    transition: border-color 0.2s;
+  }
+  .input:focus { outline: none; border-color: var(--ink); }
+  .select {
+    appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%23737373' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+  }
+
+  /* HOME HERO */
+  .hero-grid {
+    display: grid; grid-template-columns: 1fr; gap: 24px;
+  }
+  .today-card {
+    padding: 44px; border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #0A0A0A 0%, #1a1a1a 100%);
+    color: #FAFAF7; position: relative; overflow: hidden;
+  }
+  .today-card::before {
+    content: ''; position: absolute; top: -40%; right: -10%; width: 60%; height: 180%;
+    background: radial-gradient(circle, rgba(250,250,247,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .today-card .eyebrow { color: rgba(250,250,247,0.6); }
+  .today-card h1 { font-size: 42px; font-weight: 600; margin: 12px 0 8px; letter-spacing: -0.03em; line-height: 1.08; }
+  .today-card .subtitle { color: rgba(250,250,247,0.7); font-size: 16px; margin-bottom: 28px; max-width: 46ch; line-height: 1.5; }
+  .today-card .btn-primary { background: #FAFAF7; color: #0A0A0A; }
+  .today-card .btn-primary:hover { background: #fff; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .stat {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px;
+  }
+  .stat-value { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500; }
+
+  /* EXERCISE LIST */
+  .ex-list { display: flex; flex-direction: column; gap: 10px; }
+  .ex-item {
+    display: flex; align-items: center; gap: 16px; padding: 18px 20px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    transition: all 0.2s var(--ease); cursor: pointer;
+  }
+  .ex-item:hover { border-color: #D4D1C8; transform: translateX(2px); }
+  .ex-num {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--line-2);
+    display: grid; place-items: center; font-size: 13px; font-weight: 600; color: var(--muted);
+    flex-shrink: 0;
+  }
+  .ex-item.done .ex-num { background: var(--ink); color: var(--bg); }
+  .ex-item.done .ex-num::after { content: '✓'; }
+  .ex-item.done .ex-num > span { display: none; }
+  .ex-body { flex: 1; min-width: 0; }
+  .ex-title { font-size: 15px; font-weight: 600; }
+  .ex-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .ex-meta { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* EXERCISE SCREEN */
+  .ex-screen { max-width: 680px; margin: 0 auto; }
+  .ex-header { margin-bottom: 40px; }
+  .ex-progress-bar {
+    height: 2px; background: var(--line); border-radius: 999px; overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .ex-progress-fill { height: 100%; background: var(--ink); transition: width 0.4s var(--ease); }
+
+  /* RECORDER */
+  .recorder-card {
+    padding: 44px; border-radius: var(--radius-lg);
+    background: var(--surface); border: 1px solid var(--line); text-align: center;
+  }
+  .record-btn {
+    width: 96px; height: 96px; border-radius: 50%;
+    background: var(--ink); display: grid; place-items: center;
+    margin: 0 auto; transition: all 0.3s var(--ease); cursor: pointer;
+    position: relative;
+  }
+  .record-btn:hover { transform: scale(1.04); }
+  .record-btn .inner {
+    width: 28px; height: 28px; background: #FF4444; border-radius: 50%;
+    transition: all 0.3s var(--ease);
+  }
+  .record-btn.recording .inner {
+    border-radius: 4px; width: 20px; height: 20px;
+  }
+  .record-btn.recording {
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,68,68,0.4); }
+    50% { box-shadow: 0 0 0 16px rgba(255,68,68,0); }
+  }
+  .record-time {
+    font-size: 40px; font-weight: 500; font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em; margin: 24px 0 8px;
+  }
+  .record-hint { color: var(--muted); font-size: 13px; }
+
+  /* WAVEFORM */
+  .wave {
+    display: flex; align-items: center; justify-content: center;
+    gap: 3px; height: 48px; margin: 20px 0;
+  }
+  .wave-bar {
+    width: 3px; background: var(--ink); border-radius: 2px;
+    height: 4px; transition: height 0.1s ease-out;
+    opacity: 0.3;
+  }
+  .wave.active .wave-bar { opacity: 0.9; }
+
+  /* PLAYBACK */
+  .playback {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; background: var(--line-2); border-radius: var(--radius);
+    margin-top: 20px;
+  }
+  .play-btn {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--ink);
+    color: var(--bg); display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .play-btn:hover { background: #2a2a2a; }
+  .pb-time { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 46px; }
+  .pb-bar { flex: 1; height: 4px; background: var(--line); border-radius: 999px; cursor: pointer; position: relative; }
+  .pb-fill { height: 100%; background: var(--ink); border-radius: 999px; width: 0%; pointer-events: none; }
+
+  /* TONGUE TWISTER / PROMPT DISPLAY */
+  .prompt-card {
+    padding: 48px 40px; border-radius: var(--radius-lg);
+    background: var(--surface); border: 1px solid var(--line);
+    text-align: center;
+  }
+  .prompt-text {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 38px; line-height: 1.2; letter-spacing: -0.01em;
+    font-weight: 400;
+  }
+  .prompt-text em { color: var(--muted); font-style: italic; }
+  .prompt-hint { color: var(--muted); margin-top: 24px; font-size: 14px; }
+
+  /* FEEDBACK */
+  .feedback-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+  .feedback-card {
+    padding: 22px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); text-align: left;
+  }
+  .feedback-card .eyebrow { margin-bottom: 10px; }
+  .feedback-card .score {
+    font-size: 36px; font-weight: 600; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .feedback-card .score-max { font-size: 18px; color: var(--muted); }
+  .feedback-card .score-desc { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+  .feedback-section {
+    padding: 24px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); margin-top: 12px;
+  }
+  .feedback-section h4 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .feedback-section .content { font-size: 14px; line-height: 1.65; color: var(--ink-2); white-space: pre-wrap; }
+
+  /* PHRASE UPGRADE CARDS */
+  .phrase-card {
+    padding: 18px; background: var(--line-2); border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+  }
+  .phrase-card:last-child { margin-bottom: 0; }
+  .phrase-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 4px;
+  }
+  .phrase-quote {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 17px; line-height: 1.5; color: var(--ink-2); font-style: italic;
+    margin-bottom: 12px;
+  }
+  .phrase-quote.old { text-decoration: line-through; text-decoration-color: rgba(0,0,0,0.2); }
+  .phrase-quote.new { font-style: normal; color: var(--ink); }
+  .phrase-why {
+    font-size: 13px; line-height: 1.55; color: var(--muted);
+    padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.06);
+  }
+
+  /* STRUCTURE ITEMS */
+  .struct-item {
+    padding: 14px 0; border-bottom: 1px solid var(--line-2);
+  }
+  .struct-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .struct-item:first-child { padding-top: 4px; }
+  .struct-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .struct-quote {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 15px; font-style: italic; color: var(--ink-2);
+    margin-bottom: 6px;
+  }
+  .struct-note {
+    font-size: 13.5px; color: var(--ink-2); line-height: 1.55;
+  }
+
+  /* DRILLS */
+  .drill-item {
+    display: flex; gap: 14px; padding: 12px 0;
+    border-bottom: 1px solid var(--line-2);
+  }
+  .drill-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .drill-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--ink); color: var(--bg);
+    display: grid; place-items: center; font-size: 11px; font-weight: 600;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .drill-text { font-size: 14px; line-height: 1.55; color: var(--ink-2); }
+
+  /* PERSUASION EXAMPLE */
+  .persu-example {
+    padding: 18px; background: var(--line-2); border-radius: var(--radius-sm);
+    font-size: 14px; line-height: 1.6; color: var(--ink-2);
+  }
+  .persu-example .persu-line { margin-bottom: 8px; }
+  .persu-example .persu-line:last-child { margin-bottom: 0; }
+  .persu-example b { font-weight: 600; color: var(--ink); }
+
+  /* TRANSCRIPT BOX (recording screens) */
+  .transcript-box {
+    margin-top: 20px; padding: 20px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  }
+  .transcript-box textarea.input {
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.55; resize: vertical; min-height: 100px;
+  }
+  .transcript-status {
+    font-size: 12px; color: var(--muted); font-weight: 500;
+  }
+  .transcript-status.ok { color: var(--success); }
+  .transcript-status.warn { color: var(--warn); }
+  .transcript-status .dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; margin-right: 6px; vertical-align: middle;
+  }
+
+  /* TRANSCRIPT HIGHLIGHT */
+  .weak-phrase {
+    border-bottom: 1.5px dotted #B5651D;
+    background: rgba(181, 101, 29, 0.06);
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+
+  /* BREATHING */
+  .breath-stage {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 60px 20px;
+  }
+  .breath-circle {
+    width: 180px; height: 180px; border-radius: 50%;
+    background: radial-gradient(circle, #1a1a1a 0%, #0A0A0A 100%);
+    display: grid; place-items: center; color: #FAFAF7;
+    font-size: 16px; font-weight: 500; letter-spacing: 0.05em;
+    transition: transform 4s cubic-bezier(0.37, 0, 0.63, 1);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+  .breath-circle.expand { transform: scale(1.35); }
+  .breath-circle.hold { transform: scale(1.35); }
+  .breath-circle.contract { transform: scale(1); }
+  .breath-hint { color: var(--muted); margin-top: 40px; font-size: 14px; }
+
+  /* BENCHMARK / PROGRESS */
+  .bm-row {
+    display: flex; align-items: center; gap: 16px; padding: 18px 20px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    margin-bottom: 8px; position: relative;
+  }
+  .bm-label { flex: 1; min-width: 0; }
+  .bm-week { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+  .bm-date { font-size: 14px; font-weight: 500; margin-top: 2px; }
+
+  /* Benchmark rows — accent color-coding */
+  :root { --accent-bm: #B8552F; }
+  .bm-row.is-benchmark {
+    background: linear-gradient(90deg, rgba(184,85,47,0.06) 0%, var(--surface) 40%);
+    border-color: rgba(184,85,47,0.28);
+  }
+  .bm-row.is-benchmark::before {
+    content: ''; position: absolute; left: 0; top: 12px; bottom: 12px;
+    width: 3px; border-radius: 2px; background: var(--accent-bm);
+  }
+  .bm-row.is-benchmark .bm-week { color: var(--accent-bm); }
+
+  /* Delete button on progress rows */
+  .bm-delete {
+    background: transparent; border: none; color: var(--muted);
+    padding: 6px 8px; border-radius: 8px; cursor: pointer;
+    transition: all 0.15s var(--ease); display: inline-flex; align-items: center; justify-content: center;
+  }
+  .bm-delete:hover { color: #C0392B; background: rgba(192,57,43,0.08); }
+  .bm-delete svg { display: block; }
+
+  /* VOCAL WARMUP */
+  .vocal-stage { display: flex; flex-direction: column; align-items: center; padding: 40px 20px 10px; }
+  .vocal-step-counter { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+  .vocal-title {
+    font-family: 'Instrument Serif', serif; font-size: 34px; font-weight: 400; font-style: italic;
+    margin-top: 10px; letter-spacing: -0.01em; color: var(--ink); text-align: center;
+  }
+  .vocal-instruction {
+    font-size: 16px; color: var(--ink-2); line-height: 1.6; max-width: 52ch;
+    text-align: center; margin: 20px auto 0;
+  }
+  .vocal-timer {
+    width: 140px; height: 140px; border-radius: 50%;
+    display: grid; place-items: center; margin: 36px auto 0;
+    background: radial-gradient(circle, #1a1a1a 0%, #0A0A0A 100%);
+    color: #FAFAF7; font-size: 30px; font-weight: 500; font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    transition: transform 0.3s var(--ease);
+  }
+  .vocal-timer.idle { background: radial-gradient(circle, #2a2a2a 0%, #1a1a1a 100%); font-size: 15px; letter-spacing: 0.08em; }
+  .vocal-timer.running { transform: scale(1.02); }
+  .vocal-progress {
+    display: flex; gap: 6px; justify-content: center; margin-top: 24px;
+  }
+  .vocal-dot { width: 34px; height: 3px; border-radius: 2px; background: var(--line-2); transition: background 0.3s var(--ease); }
+  .vocal-dot.active { background: var(--ink-2); }
+  .vocal-dot.done { background: var(--ink); }
+  .vocal-hint { color: var(--muted); margin-top: 20px; font-size: 13px; text-align: center; }
+
+  /* MODAL */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(10,10,10,0.4);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100; padding: 24px;
+  }
+  .modal-backdrop.show { display: flex; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: var(--surface); border-radius: var(--radius-lg);
+    max-width: 540px; width: 100%; padding: 36px;
+    box-shadow: var(--shadow-2); max-height: 90vh; overflow-y: auto;
+    animation: fadeUp 0.3s var(--ease);
+  }
+  .modal h2 { font-size: 22px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.02em; }
+  .modal .hint { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--bg); padding: 12px 20px;
+    border-radius: 999px; font-size: 13.5px; font-weight: 500;
+    box-shadow: var(--shadow-2); opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s; z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+  /* UTILS */
+  .hstack { display: flex; align-items: center; gap: 12px; }
+  .vstack { display: flex; flex-direction: column; }
+  .gap-6 { gap: 6px; } .gap-8 { gap: 8px; } .gap-12 { gap: 12px; } .gap-16 { gap: 16px; }
+  .gap-24 { gap: 24px; } .gap-32 { gap: 32px; } .gap-40 { gap: 40px; }
+  .mt-8 { margin-top: 8px; } .mt-12 { margin-top: 12px; } .mt-16 { margin-top: 16px; }
+  .mt-24 { margin-top: 24px; } .mt-32 { margin-top: 32px; } .mt-40 { margin-top: 40px; }
+  .mb-8 { margin-bottom: 8px; } .mb-16 { margin-bottom: 16px; } .mb-24 { margin-bottom: 24px; }
+  .flex-1 { flex: 1; }
+  .text-center { text-align: center; }
+  .hidden { display: none !important; }
+  .spacer { height: 24px; }
+  .divider { height: 1px; background: var(--line); margin: 32px 0; }
+  .row-between { display: flex; align-items: center; justify-content: space-between; }
+
+  /* RESPONSIVE */
+  @media (max-width: 720px) {
+    main { padding: 32px 20px 60px; }
+    .nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    h1.display { font-size: 38px; }
+    .today-card { padding: 32px 24px; }
+    .today-card h1 { font-size: 30px; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .feedback-grid { grid-template-columns: 1fr; }
+    .prompt-text { font-size: 26px; }
+    .recorder-card { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="logo">
+      <div class="logo-mark"></div>
+      <span>Cadence</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-link active" data-nav="home">Today</button>
+      <button class="nav-link" data-nav="benchmark">Weekly</button>
+      <button class="nav-link" data-nav="progress">Progress</button>
+    </div>
+    <div class="nav-right">
+      <div class="streak-pill"><span class="dot"></span><span id="streak-count">0</span> day streak</div>
+      <button class="btn btn-ghost btn-sm" id="open-settings">Settings</button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- HOME SCREEN -->
+    <section class="screen active" id="screen-home">
+      <div class="container">
+        <div class="hero-grid">
+          <div class="today-card">
+            <div class="eyebrow">Today · <span id="today-date"></span></div>
+            <h1>Your voice, <span class="serif" style="font-style: italic;">refined daily.</span></h1>
+            <p class="subtitle">Three short exercises to warm up, articulate, and practice speaking under pressure. About 10 minutes.</p>
+            <button class="btn btn-primary btn-lg" id="start-today">Begin today's session →</button>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat">
+              <div class="stat-value" id="stat-streak">0</div>
+              <div class="stat-label">Day streak</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value" id="stat-sessions">0</div>
+              <div class="stat-label">Sessions done</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value" id="stat-minutes">0</div>
+              <div class="stat-label">Minutes spoken</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value" id="stat-benchmarks">0</div>
+              <div class="stat-label">Weekly recordings</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 8px;">
+            <div class="eyebrow mb-16">Today's exercises</div>
+            <div class="ex-list" id="today-list">
+              <!-- populated by JS -->
+            </div>
+          </div>
+
+          <div class="card hoverable" id="bm-prompt-card" style="cursor: pointer;">
+            <div class="row-between">
+              <div>
+                <div class="eyebrow">Weekly benchmark</div>
+                <h3 class="mt-8">Record your weekly speech</h3>
+                <p class="body mt-8" id="bm-status">Same prompt, every week. Listen back to hear yourself grow.</p>
+              </div>
+              <button class="btn btn-ghost">Open →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WARM-UP / BREATHING SCREEN -->
+    <section class="screen" id="screen-warmup">
+      <div class="ex-screen">
+        <div class="ex-header">
+          <div class="ex-progress-bar"><div class="ex-progress-fill" style="width: 25%;"></div></div>
+          <div class="eyebrow">Exercise 1 of 4</div>
+          <h2 class="section mt-8">Breath & warm-up</h2>
+          <p class="lead mt-12">Four rounds of box breathing to open your voice. Follow the circle.</p>
+        </div>
+        <div class="breath-stage">
+          <div class="breath-circle" id="breath-circle">Begin</div>
+          <div class="breath-hint" id="breath-hint">Tap to start</div>
+        </div>
+        <div class="hstack" style="justify-content: space-between; margin-top: 32px;">
+          <button class="btn btn-ghost" data-back="home">← Back</button>
+          <button class="btn btn-primary" id="warmup-next" disabled>Continue →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ARTICULATION SCREEN -->
+    <section class="screen" id="screen-articulation">
+      <div class="ex-screen">
+        <div class="ex-header">
+          <div class="ex-progress-bar"><div class="ex-progress-fill" style="width: 50%;"></div></div>
+          <div class="eyebrow">Exercise 2 of 4</div>
+          <h2 class="section mt-8">Tongue twister</h2>
+          <p class="lead mt-12">Read the tongue twister aloud three times — slow, medium, then fast. Keep every consonant crisp, even at speed.</p>
+        </div>
+        <div class="prompt-card">
+          <div class="prompt-text" id="twister-text"></div>
+          <div class="prompt-hint">Slow → medium → fast. Don't mumble a single letter.</div>
+        </div>
+        <div class="hstack" style="justify-content: center; margin-top: 24px;">
+          <button class="btn btn-ghost btn-sm" id="twister-shuffle">Shuffle twister</button>
+        </div>
+        <div class="hstack" style="justify-content: space-between; margin-top: 24px;">
+          <button class="btn btn-ghost" data-back="warmup">← Back</button>
+          <button class="btn btn-primary" id="twister-done">I practiced → continue</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-vocal">
+      <div class="ex-screen">
+        <div class="ex-header">
+          <div class="ex-progress-bar"><div class="ex-progress-fill" style="width: 75%;"></div></div>
+          <div class="eyebrow">Exercise 3 of 4</div>
+          <h2 class="section mt-8">Voice warm-up</h2>
+          <p class="lead mt-12">A short actor's warm-up to wake up your lips, jaw, and resonance before you speak. Follow four short steps — no recording needed.</p>
+        </div>
+        <div class="vocal-stage">
+          <div class="vocal-step-counter" id="vocal-counter">Step 1 of 4</div>
+          <div class="vocal-title" id="vocal-title">Ready when you are</div>
+          <div class="vocal-instruction" id="vocal-instruction">Tap the circle to begin. Each step auto-advances with a timer — if you need more time, don't rush.</div>
+          <div class="vocal-timer idle" id="vocal-timer">Tap to start</div>
+          <div class="vocal-progress" id="vocal-progress"></div>
+          <div class="vocal-hint" id="vocal-hint">You can skip ahead by tapping the timer.</div>
+        </div>
+        <div class="hstack" style="justify-content: space-between; margin-top: 24px;">
+          <button class="btn btn-ghost" data-back="articulation">← Back</button>
+          <button class="btn btn-primary" id="vocal-next" disabled>Continue →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SPEAKING SCREEN -->
+    <section class="screen" id="screen-speaking">
+      <div class="ex-screen">
+        <div class="ex-header">
+          <div class="ex-progress-bar"><div class="ex-progress-fill" style="width: 100%;"></div></div>
+          <div class="eyebrow">Exercise 4 of 4</div>
+          <h2 class="section mt-8">Impromptu speech</h2>
+          <p class="lead mt-12">Speak for about 60 seconds. Aim for a clear opening, one concrete example, and a closing thought.</p>
+        </div>
+        <div class="prompt-card">
+          <div class="eyebrow mb-16">Your prompt</div>
+          <div class="prompt-text" id="speech-prompt"></div>
+          <button class="btn btn-ghost btn-sm mt-24" id="new-prompt">Shuffle prompt</button>
+        </div>
+        <div class="recorder-card mt-24">
+          <div class="wave" id="sp-wave"></div>
+          <div class="record-time" id="sp-time">0:00</div>
+          <button class="record-btn" id="sp-record"><div class="inner"></div></button>
+          <div class="record-hint mt-16" id="sp-hint">Tap to record · speak freely</div>
+          <div class="playback hidden" id="sp-playback">
+            <button class="play-btn" data-play="sp"><svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><path d="M1 1l10 6-10 6V1z"/></svg></button>
+            <div class="pb-time" id="sp-pb-cur">0:00</div>
+            <div class="pb-bar" data-seek="sp"><div class="pb-fill"></div></div>
+            <div class="pb-time" id="sp-pb-dur">0:00</div>
+          </div>
+        </div>
+        <div class="transcript-box hidden" id="sp-transcript-box">
+          <div class="row-between" style="margin-bottom: 8px;">
+            <div class="eyebrow">Transcript</div>
+            <span class="transcript-status" id="sp-transcript-status"></span>
+          </div>
+          <textarea class="input" id="sp-transcript-edit" rows="5" placeholder="Type or paste what you said here. Claude needs this to quote you back to you."></textarea>
+          <p class="body muted" style="font-size: 12px; margin-top: 6px;">Review and edit before getting feedback — fixing misheard words now makes the feedback much sharper.</p>
+        </div>
+        <div class="hstack" style="justify-content: space-between; margin-top: 24px;">
+          <button class="btn btn-ghost" data-back="vocal">← Back</button>
+          <button class="btn btn-primary" id="sp-analyze" disabled>Get AI feedback →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEEDBACK SCREEN -->
+    <section class="screen" id="screen-feedback">
+      <div class="container">
+        <div class="eyebrow">Session feedback</div>
+        <h2 class="section mt-8">Here's how today went.</h2>
+        <p class="lead mt-12">Analysis of your impromptu speech. Scores are 1–10. Use the tips below to sharpen tomorrow.</p>
+
+        <div id="feedback-loading" class="card text-center mt-32" style="padding: 60px 40px;">
+          <div class="breath-circle" style="width: 80px; height: 80px; font-size: 12px; animation: pulse 2s infinite;">Analyzing</div>
+          <p class="body mt-24" id="feedback-status">Transcribing your recording…</p>
+        </div>
+
+        <div id="feedback-content" class="hidden">
+          <div class="feedback-grid">
+            <div class="feedback-card">
+              <div class="eyebrow">Vocabulary</div>
+              <div><span class="score" id="fb-vocab">—</span><span class="score-max">/10</span></div>
+              <div class="score-desc" id="fb-vocab-desc"></div>
+            </div>
+            <div class="feedback-card">
+              <div class="eyebrow">Storytelling</div>
+              <div><span class="score" id="fb-story">—</span><span class="score-max">/10</span></div>
+              <div class="score-desc" id="fb-story-desc"></div>
+            </div>
+            <div class="feedback-card">
+              <div class="eyebrow">Persuasiveness</div>
+              <div><span class="score" id="fb-persu">—</span><span class="score-max">/10</span></div>
+              <div class="score-desc" id="fb-persu-desc"></div>
+            </div>
+          </div>
+
+          <div class="feedback-section mt-24">
+            <h4>What went well</h4>
+            <div class="content" id="fb-wins"></div>
+          </div>
+
+          <div class="feedback-section">
+            <h4>Phrases to upgrade</h4>
+            <div class="content muted" style="margin-bottom: 12px;">Three moments pulled from your speech with a sharper rewrite.</div>
+            <div id="fb-phrases"></div>
+          </div>
+
+          <div class="feedback-section">
+            <h4>Story structure</h4>
+            <div id="fb-structure"></div>
+          </div>
+
+          <div class="feedback-section">
+            <h4>Persuasiveness</h4>
+            <div class="content" id="fb-persu-note" style="margin-bottom: 12px;"></div>
+            <div id="fb-persu-example"></div>
+          </div>
+
+          <div class="feedback-section">
+            <h4>Drills for tomorrow</h4>
+            <div id="fb-drills"></div>
+          </div>
+
+          <div class="feedback-section">
+            <h4>Transcript</h4>
+            <div class="content" id="fb-transcript" style="font-style: italic; color: var(--muted); line-height: 1.7;"></div>
+          </div>
+
+          <div class="hstack" style="justify-content: center; margin-top: 32px;">
+            <button class="btn btn-primary" data-back="home">Back to today →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BENCHMARK SCREEN -->
+    <section class="screen" id="screen-benchmark">
+      <div class="container">
+        <div class="eyebrow">Weekly benchmark</div>
+        <h2 class="section mt-8">The same prompt, every week.</h2>
+        <p class="lead mt-12">Record this once a week. Then listen back through your history to hear how much you've grown — in tone, pacing, confidence, and word choice.</p>
+
+        <div class="prompt-card mt-32">
+          <div class="eyebrow mb-16">The prompt</div>
+          <div class="prompt-text">Tell me about something new you learned this week — <em>what it is, why it matters, and what you'll do with it.</em></div>
+          <div class="prompt-hint">Aim for 90 seconds.</div>
+        </div>
+
+        <div class="recorder-card mt-24">
+          <div class="wave" id="bm-wave"></div>
+          <div class="record-time" id="bm-time">0:00</div>
+          <button class="record-btn" id="bm-record"><div class="inner"></div></button>
+          <div class="record-hint mt-16" id="bm-hint">Tap to record · aim for ~90s, but length is flexible</div>
+          <div class="playback hidden" id="bm-playback">
+            <button class="play-btn" data-play="bm"><svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><path d="M1 1l10 6-10 6V1z"/></svg></button>
+            <div class="pb-time" id="bm-pb-cur">0:00</div>
+            <div class="pb-bar" data-seek="bm"><div class="pb-fill"></div></div>
+            <div class="pb-time" id="bm-pb-dur">0:00</div>
+          </div>
+        </div>
+
+        <div class="transcript-box hidden" id="bm-transcript-box">
+          <div class="row-between" style="margin-bottom: 8px;">
+            <div class="eyebrow">Transcript</div>
+            <span class="transcript-status" id="bm-transcript-status"></span>
+          </div>
+          <textarea class="input" id="bm-transcript-edit" rows="5" placeholder="Type or paste what you said here."></textarea>
+          <p class="body muted" style="font-size: 12px; margin-top: 6px;">Saved alongside your recording so you can get feedback later.</p>
+        </div>
+
+        <div class="hstack" style="justify-content: space-between; margin-top: 24px;">
+          <button class="btn btn-ghost" id="bm-redo" disabled>Re-record</button>
+          <button class="btn btn-primary" id="bm-save" disabled>Save this week's recording</button>
+        </div>
+
+        <div class="divider"></div>
+        <div class="eyebrow mb-16">Your benchmark history</div>
+        <div id="bm-history">
+          <p class="muted" style="font-size: 14px;">No recordings yet. Your first will be the baseline.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROGRESS SCREEN -->
+    <section class="screen" id="screen-progress">
+      <div class="container">
+        <div class="eyebrow">Progress</div>
+        <h2 class="section mt-8">Your journey so far.</h2>
+        <p class="lead mt-12">Every session, every benchmark, every recording you've made.</p>
+
+        <div class="stats-row mt-32">
+          <div class="stat"><div class="stat-value" id="p-streak">0</div><div class="stat-label">Day streak</div></div>
+          <div class="stat"><div class="stat-value" id="p-sessions">0</div><div class="stat-label">Sessions</div></div>
+          <div class="stat"><div class="stat-value" id="p-minutes">0</div><div class="stat-label">Minutes spoken</div></div>
+          <div class="stat"><div class="stat-value" id="p-avg">—</div><div class="stat-label">Avg. score</div></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="row-between mb-16">
+          <div class="eyebrow">Session history</div>
+          <button class="btn btn-ghost btn-sm" id="export-all">Download all recordings</button>
+        </div>
+        <div id="session-history"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-backdrop" id="settings-modal">
+  <div class="modal">
+    <h2>Settings</h2>
+    <div class="hint">AI keys are stored only in your browser. Never sent anywhere but to the provider you choose.</div>
+
+    <div class="field">
+      <label>AI provider</label>
+      <select class="input select" id="setting-provider">
+        <option value="anthropic">Anthropic (Claude)</option>
+        <option value="openai">OpenAI (GPT + Whisper)</option>
+      </select>
+    </div>
+
+    <div class="field" id="field-anthropic">
+      <label>Anthropic API key</label>
+      <input type="password" class="input" id="setting-anthropic-key" placeholder="sk-ant-…" autocomplete="off" />
+      <div class="hint mt-8" style="margin-bottom: 0;">Get one at console.anthropic.com → Settings → API Keys</div>
+    </div>
+
+    <div class="field" id="field-openai">
+      <label>OpenAI API key</label>
+      <input type="password" class="input" id="setting-openai-key" placeholder="sk-…" autocomplete="off" />
+      <div class="hint mt-8" style="margin-bottom: 0;">Get one at platform.openai.com → API Keys</div>
+    </div>
+
+    <div class="field">
+      <label>Your name (optional)</label>
+      <input type="text" class="input" id="setting-name" placeholder="Regina" />
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="settings-cancel">Cancel</button>
+      <button class="btn btn-primary" id="settings-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CADENCE — Voice & Public Speaking Trainer
+   Single-file web app. All data stored locally.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. CONTENT — tongue twisters, speech prompts, feedback copy
+   ------------------------------------------------------------ */
+const TONGUE_TWISTERS = [
+  "Red leather, yellow leather, red leather, yellow leather.",
+  "She sells seashells by the seashore; the shells she sells are surely seashells.",
+  "A proper copper coffee pot in a copper coffee shop.",
+  "Unique New York. Unique New York. You need New York.",
+  "Peter Piper picked a peck of pickled peppers — a peck of pickled peppers Peter Piper picked.",
+  "The sixth sick sheikh's sixth sheep's sick.",
+  "How much wood would a woodchuck chuck if a woodchuck could chuck wood?",
+  "Irish wristwatch, Swiss wristwatch. Irish wristwatch, Swiss wristwatch.",
+  "Toy boat. Toy boat. Toy boat. (Say it ten times fast.)",
+  "Betty Botter bought some butter, but she said the butter's bitter."
+];
+
+// Actor-style pre-performance voice warmup — a 4-step guided routine.
+// No recording needed: these are physical/vocal activations, like what a stage
+// actor runs through in the green room before going on.
+const VOICE_WARMUP_STEPS = [
+  {
+    title: 'Unclench & release',
+    instruction: 'Drop your jaw open and let it hang for a beat. Massage your cheekbones and the hinge of your jaw with your fingertips. Roll your shoulders back twice. Shake out your hands.',
+    seconds: 25
+  },
+  {
+    title: 'Lip trills',
+    instruction: 'Blow air through loosely closed lips — brrrrr, like a motorboat. Keep the sound steady, then slide the pitch from your lowest note up to your highest and back down. Three rounds.',
+    seconds: 35
+  },
+  {
+    title: 'Humming siren',
+    instruction: 'Close your lips and hum "mmmmm". Slide your pitch smoothly from low to high, then high to low, like a slow siren. Feel the buzz move from your chest up into your face. Three rounds.',
+    seconds: 35
+  },
+  {
+    title: 'Vowel resonance',
+    instruction: 'Open your mouth wide and sustain each vowel for a full breath on a comfortable pitch: aaah → ooooh → eeee. Feel the vibration shift inside your skull and chest. Keep it round and warm.',
+    seconds: 25
+  }
+];
+
+const BENCHMARK_PROMPT = "Tell me about something new you learned this week — what it is, why it matters, and what you'll do with it.";
+
+const SPEECH_PROMPTS = [
+  "Describe a place that feels like home to you and why.",
+  "Tell the story of the best piece of advice you've ever received.",
+  "If you had to teach someone one skill in 60 seconds, what would it be and why?",
+  "Describe a moment recently when you changed your mind about something.",
+  "Tell me about a person you admire and one specific thing they do that you want to emulate.",
+  "What's a small daily ritual that makes a big difference in your life?",
+  "Describe something you're working on that you're genuinely excited about.",
+  "Tell me about a time you were wrong — and what you did next.",
+  "What's a book, movie, or idea that changed the way you see the world?",
+  "Describe a skill you want to build over the next year and why it matters.",
+  "Tell me about the most interesting conversation you've had this month.",
+  "Pitch your favorite restaurant to someone who's never been.",
+  "Describe a problem you'd love to solve if you had unlimited resources.",
+  "Tell me about a moment you felt genuinely proud of yourself.",
+  "What's something most people get wrong about your profession or hobby?"
+];
+
+/* ------------------------------------------------------------
+   2. UTILITIES
+   ------------------------------------------------------------ */
+const $ = (sel, root=document) => root.querySelector(sel);
+const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+const fmt = {
+  time(secs) {
+    secs = Math.max(0, Math.floor(secs));
+    const m = Math.floor(secs / 60), s = secs % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  },
+  date(d) {
+    return new Date(d).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  },
+  dateShort(d) {
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  },
+  weekKey(d = new Date()) {
+    // ISO week: returns YYYY-W##
+    const date = new Date(d);
+    date.setHours(0,0,0,0);
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    const week1 = new Date(date.getFullYear(), 0, 4);
+    const wk = 1 + Math.round(((date - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    return `${date.getFullYear()}-W${wk.toString().padStart(2, '0')}`;
+  }
+};
+
+function toast(msg, ms=2400) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('show'), ms);
+}
+
+function pick(arr, avoid) {
+  if (arr.length <= 1) return arr[0];
+  let x;
+  do { x = arr[Math.floor(Math.random() * arr.length)]; } while (x === avoid);
+  return x;
+}
+
+/* ------------------------------------------------------------
+   3. DATA LAYER — IndexedDB for audio, localStorage for state
+   ------------------------------------------------------------ */
+const DB = (() => {
+  const NAME = 'cadence';
+  const VERSION = 1;
+  const STORE = 'recordings';
+  let dbPromise = null;
+
+  function open() {
+    if (dbPromise) return dbPromise;
+    dbPromise = new Promise((res, rej) => {
+      const req = indexedDB.open(NAME, VERSION);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(STORE)) {
+          const store = db.createObjectStore(STORE, { keyPath: 'id' });
+          store.createIndex('type', 'type', { unique: false });
+          store.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+      };
+      req.onsuccess = (e) => res(e.target.result);
+      req.onerror = (e) => rej(e.target.error);
+    });
+    return dbPromise;
+  }
+
+  async function put(rec) {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).put(rec);
+      tx.oncomplete = () => res(rec);
+      tx.onerror = (e) => rej(e.target.error);
+    });
+  }
+
+  async function get(id) {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(STORE, 'readonly');
+      const r = tx.objectStore(STORE).get(id);
+      r.onsuccess = () => res(r.result);
+      r.onerror = (e) => rej(e.target.error);
+    });
+  }
+
+  async function all() {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(STORE, 'readonly');
+      const r = tx.objectStore(STORE).getAll();
+      r.onsuccess = () => res(r.result || []);
+      r.onerror = (e) => rej(e.target.error);
+    });
+  }
+
+  async function byType(type) {
+    const items = await all();
+    return items.filter(x => x.type === type).sort((a,b) => b.createdAt - a.createdAt);
+  }
+
+  async function del(id) {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).delete(id);
+      tx.oncomplete = () => res();
+      tx.onerror = (e) => rej(e.target.error);
+    });
+  }
+
+  return { put, get, all, byType, del };
+})();
+
+/* localStorage-backed state */
+const Store = {
+  get(k, def=null) {
+    try { const v = localStorage.getItem('cadence:'+k); return v ? JSON.parse(v) : def; }
+    catch { return def; }
+  },
+  set(k, v) { localStorage.setItem('cadence:'+k, JSON.stringify(v)); },
+  del(k) { localStorage.removeItem('cadence:'+k); }
+};
+
+/* ------------------------------------------------------------
+   4. APP STATE
+   ------------------------------------------------------------ */
+const state = {
+  currentScreen: 'home',
+  settings: Store.get('settings', { provider: 'anthropic', anthropicKey: '', openaiKey: '', name: '' }),
+  progress: Store.get('progress', { streak: 0, lastSessionDate: null, sessions: 0, totalSeconds: 0, scores: [] }),
+  todayPlan: Store.get('todayPlan', null),  // { date, twister, prompt, warmupDone, twisterDone, vocalDone, spId, feedback }
+  pending: {
+    speech: null,
+    benchmark: null
+  }
+};
+
+function saveSettings() { Store.set('settings', state.settings); }
+function saveProgress() { Store.set('progress', state.progress); }
+function saveTodayPlan() { Store.set('todayPlan', state.todayPlan); }
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+}
+
+function ensureTodayPlan() {
+  const tk = todayKey();
+  if (!state.todayPlan || state.todayPlan.date !== tk) {
+    state.todayPlan = {
+      date: tk,
+      twister: pick(TONGUE_TWISTERS, state.todayPlan?.twister),
+      prompt: pick(SPEECH_PROMPTS, state.todayPlan?.prompt),
+      warmupDone: false,
+      twisterDone: false,
+      vocalDone: false,
+      spId: null,
+      feedback: null
+    };
+    saveTodayPlan();
+  }
+  return state.todayPlan;
+}
+
+/* ------------------------------------------------------------
+   5. NAVIGATION
+   ------------------------------------------------------------ */
+function show(screen) {
+  $$('.screen').forEach(s => s.classList.remove('active'));
+  const el = $('#screen-' + screen);
+  if (el) el.classList.add('active');
+  state.currentScreen = screen;
+  $$('.nav-link').forEach(n => {
+    n.classList.toggle('active', n.dataset.nav === screen || (screen === 'home' && n.dataset.nav === 'home'));
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (screen === 'home') renderHome();
+  if (screen === 'benchmark') renderBenchmark();
+  if (screen === 'progress') renderProgress();
+}
+
+/* ------------------------------------------------------------
+   6. AUDIO RECORDER
+   ------------------------------------------------------------ */
+class Recorder {
+  constructor({ waveEl, timeEl, onTick, onStop, maxSeconds = 300, captureTranscript = false }) {
+    this.waveEl = waveEl;
+    this.timeEl = timeEl;
+    this.onTick = onTick;
+    this.onStop = onStop;
+    this.maxSeconds = maxSeconds;
+    this.captureTranscript = captureTranscript;
+    this.mediaRec = null;
+    this.chunks = [];
+    this.stream = null;
+    this.audioCtx = null;
+    this.analyser = null;
+    this.rafId = null;
+    this.startTime = 0;
+    this.duration = 0;
+    this.tickerId = null;
+    this.state = 'idle'; // idle | recording | stopped
+    this.blob = null;
+    this.url = null;
+    this.recognition = null;
+    this.transcriptParts = [];
+    this.liveTranscript = '';
+    this._buildWave();
+  }
+
+  _startSpeechRecognition() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    this.srSupported = !!SR;
+    this.srError = null;
+    this.lastInterim = '';
+    this.transcriptParts = [];
+    if (!SR) { this.srError = 'not-supported'; return; }
+    try {
+      this.recognition = new SR();
+      this.recognition.continuous = true;
+      this.recognition.interimResults = true;
+      this.recognition.lang = 'en-US';
+      this.recognition.onresult = (e) => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const r = e.results[i];
+          if (r.isFinal) this.transcriptParts.push(r[0].transcript);
+          else interim += r[0].transcript;
+        }
+        this.lastInterim = interim;
+      };
+      this.recognition.onerror = (e) => {
+        console.warn('SpeechRecognition error:', e.error);
+        this.srError = e.error || 'error';
+      };
+      this.recognition.onend = () => {
+        // Auto-restart if we're still recording and haven't been intentionally stopped
+        if (this.state === 'recording' && this.recognition) {
+          try { this.recognition.start(); } catch {}
+        }
+      };
+      this.recognition.start();
+    } catch (e) {
+      console.warn('SR init failed:', e);
+      this.recognition = null;
+      this.srError = e.message || 'init-failed';
+    }
+  }
+
+  _stopSpeechRecognition() {
+    if (this.recognition) {
+      try { this.recognition.onend = null; this.recognition.stop(); } catch {}
+    }
+    // Combine final + any trailing interim that didn't get finalized
+    const finals = (this.transcriptParts || []).join(' ');
+    this.liveTranscript = (finals + (this.lastInterim ? ' ' + this.lastInterim : '')).replace(/\s+/g, ' ').trim();
+    this.recognition = null;
+  }
+
+  _buildWave() {
+    if (!this.waveEl) return;
+    this.waveEl.innerHTML = '';
+    for (let i = 0; i < 32; i++) {
+      const b = document.createElement('div');
+      b.className = 'wave-bar';
+      this.waveEl.appendChild(b);
+    }
+    this.waveBars = $$('.wave-bar', this.waveEl);
+  }
+
+  async start() {
+    if (this.state === 'recording') return;
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+    } catch (e) {
+      toast('Microphone access denied. Please allow mic access and try again.');
+      throw e;
+    }
+    this.chunks = [];
+    const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
+               : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
+               : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '';
+    this.mediaRec = new MediaRecorder(this.stream, mime ? { mimeType: mime } : undefined);
+    this.mediaRec.ondataavailable = (e) => { if (e.data && e.data.size > 0) this.chunks.push(e.data); };
+    this.mediaRec.onstop = () => this._finalize();
+    this.mediaRec.start(100);
+    this.state = 'recording';
+    this.startTime = performance.now();
+    this._setupAnalyser();
+    this._tick();
+    this.waveEl?.classList.add('active');
+    if (this.captureTranscript) this._startSpeechRecognition();
+  }
+
+  _setupAnalyser() {
+    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    this.analyser = this.audioCtx.createAnalyser();
+    this.analyser.fftSize = 64;
+    const src = this.audioCtx.createMediaStreamSource(this.stream);
+    src.connect(this.analyser);
+  }
+
+  _tick() {
+    if (this.state !== 'recording') return;
+    const secs = (performance.now() - this.startTime) / 1000;
+    if (this.timeEl) this.timeEl.textContent = fmt.time(secs);
+    if (this.onTick) this.onTick(secs);
+    if (this.analyser && this.waveBars) {
+      const data = new Uint8Array(this.analyser.frequencyBinCount);
+      this.analyser.getByteFrequencyData(data);
+      const slice = data.length / this.waveBars.length;
+      this.waveBars.forEach((bar, i) => {
+        const v = data[Math.floor(i * slice)] || 0;
+        bar.style.height = Math.max(4, (v / 255) * 44) + 'px';
+      });
+    }
+    if (secs >= this.maxSeconds) { this.stop(); return; }
+    this.rafId = requestAnimationFrame(() => this._tick());
+  }
+
+  stop() {
+    if (this.state !== 'recording') return;
+    cancelAnimationFrame(this.rafId);
+    this.duration = (performance.now() - this.startTime) / 1000;
+    this.mediaRec.stop();
+    this.stream.getTracks().forEach(t => t.stop());
+    if (this.audioCtx) this.audioCtx.close();
+    this.waveEl?.classList.remove('active');
+    this._stopSpeechRecognition();
+    this.state = 'stopped';
+  }
+
+  _finalize() {
+    this.blob = new Blob(this.chunks, { type: this.mediaRec.mimeType || 'audio/webm' });
+    this.url = URL.createObjectURL(this.blob);
+    if (this.waveBars) this.waveBars.forEach(b => b.style.height = '4px');
+    if (this.onStop) this.onStop({
+      blob: this.blob,
+      url: this.url,
+      duration: this.duration,
+      transcript: this.liveTranscript || '',
+      srSupported: !!this.srSupported,
+      srError: this.srError || null
+    });
+  }
+
+  reset() {
+    if (this.url) URL.revokeObjectURL(this.url);
+    this.blob = null; this.url = null; this.duration = 0;
+    this.state = 'idle';
+    if (this.timeEl) this.timeEl.textContent = '0:00';
+    if (this.waveBars) this.waveBars.forEach(b => b.style.height = '4px');
+  }
+}
+
+/* ------------------------------------------------------------
+   7. PLAYBACK — shared audio element manager
+   ------------------------------------------------------------ */
+const Playback = {
+  audios: {},
+  attach(name, url) {
+    if (this.audios[name]) { this.audios[name].pause(); URL.revokeObjectURL(this.audios[name].src); }
+    const audio = new Audio(url);
+    this.audios[name] = audio;
+    audio.addEventListener('loadedmetadata', () => {
+      const dur = isFinite(audio.duration) ? audio.duration : 0;
+      const durEl = $('#' + name + '-pb-dur');
+      if (durEl) durEl.textContent = fmt.time(dur);
+    });
+    audio.addEventListener('timeupdate', () => {
+      const curEl = $('#' + name + '-pb-cur');
+      if (curEl) curEl.textContent = fmt.time(audio.currentTime);
+      const fill = $(`[data-seek="${name}"] .pb-fill`);
+      if (fill && audio.duration) fill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+    });
+    audio.addEventListener('ended', () => {
+      const btn = $(`[data-play="${name}"]`);
+      if (btn) btn.innerHTML = '<svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><path d="M1 1l10 6-10 6V1z"/></svg>';
+    });
+    return audio;
+  },
+  toggle(name) {
+    const a = this.audios[name];
+    if (!a) return;
+    const btn = $(`[data-play="${name}"]`);
+    if (a.paused) {
+      // pause others
+      Object.entries(this.audios).forEach(([k,v]) => { if (k !== name) v.pause(); });
+      a.play();
+      if (btn) btn.innerHTML = '<svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><rect x="0" y="0" width="3" height="14"/><rect x="7" y="0" width="3" height="14"/></svg>';
+    } else {
+      a.pause();
+      if (btn) btn.innerHTML = '<svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><path d="M1 1l10 6-10 6V1z"/></svg>';
+    }
+  },
+  seek(name, pct) {
+    const a = this.audios[name];
+    if (a && a.duration) a.currentTime = a.duration * pct;
+  }
+};
+
+/* Global seek + play bindings */
+document.addEventListener('click', (e) => {
+  const play = e.target.closest('[data-play]');
+  if (play) { Playback.toggle(play.dataset.play); return; }
+  const seek = e.target.closest('[data-seek]');
+  if (seek) {
+    const rect = seek.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    Playback.seek(seek.dataset.seek, pct);
+  }
+});
+
+/* ------------------------------------------------------------
+   8. TRANSCRIPTION — Web Speech API + OpenAI Whisper
+   ------------------------------------------------------------ */
+async function transcribeAudio(blob, provider) {
+  if (provider === 'openai' && state.settings.openaiKey) {
+    return transcribeWithWhisper(blob);
+  }
+  // Fallback: Web Speech API via live recognition isn't applicable post-hoc,
+  // so for Anthropic (no transcription endpoint) we ask the user or rely on Claude to work from self-notes.
+  // We'll attempt Web Speech API via audio re-play trick — but the reliable path is to
+  // decode in browser using a lightweight approach: we send the audio metadata to Claude.
+  // Most reliable: prompt user, or try Whisper if OpenAI key is present.
+  if (state.settings.openaiKey) {
+    return transcribeWithWhisper(blob);
+  }
+  return null; // no transcript available
+}
+
+async function transcribeWithWhisper(blob) {
+  const form = new FormData();
+  // Whisper accepts webm/mp4/m4a/mp3/wav/ogg
+  const filename = blob.type.includes('mp4') ? 'audio.mp4' : 'audio.webm';
+  form.append('file', blob, filename);
+  form.append('model', 'whisper-1');
+  form.append('response_format', 'json');
+  form.append('language', 'en');
+  const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + state.settings.openaiKey },
+    body: form
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error('Whisper error: ' + err);
+  }
+  const data = await res.json();
+  return data.text || '';
+}
+
+/* ------------------------------------------------------------
+   9. AI FEEDBACK — Anthropic Claude / OpenAI GPT
+   ------------------------------------------------------------ */
+const FEEDBACK_SCHEMA = `Return ONLY a valid JSON object. No markdown, no commentary, no code fences. Match this exact shape:
+{
+  "scores": {
+    "vocabulary":     { "score": <1-10 integer>, "note": "<one sentence, 18 words max, specific>" },
+    "storytelling":   { "score": <1-10 integer>, "note": "<one sentence, 18 words max, specific>" },
+    "persuasiveness": { "score": <1-10 integer>, "note": "<one sentence, 18 words max, specific>" }
+  },
+  "phrases": [
+    {
+      "youSaid":  "<EXACT quote from the transcript, word-for-word, 4-15 words>",
+      "tryThis":  "<your rewritten version, same intent, sharper language>",
+      "why":      "<one sentence explaining why the rewrite is stronger, 20 words max>"
+    },
+    { "youSaid": "...", "tryThis": "...", "why": "..." },
+    { "youSaid": "...", "tryThis": "...", "why": "..." }
+  ],
+  "structure": {
+    "opening": { "quote": "<first 8-12 words the speaker said>", "note": "<does the opening hook? one sentence>" },
+    "body":    { "note": "<did they give a concrete example or stay abstract? quote a specific detail they included or note its absence. one sentence>" },
+    "close":   { "quote": "<last 8-12 words the speaker said>", "note": "<did the ending land? one sentence>" }
+  },
+  "persuasion": {
+    "note":    "<in one sentence, what is the speaker's main argumentative strength or gap? e.g. missing evidence, no stakes, no call to action>",
+    "example": "<a concrete before/after showing stronger persuasion. format exactly as: 'You said: \\"<quote>\\". A more persuasive version: \\"<rewrite>\\". Why: <brief reason>'>"
+  },
+  "wins":   "<2-3 sentences. Specific praise tied to real moments. Quote something they said well.>",
+  "drills": [
+    "<a specific drill for vocabulary. reference one of the phrases to upgrade. actionable. 25 words max.>",
+    "<a specific drill for storytelling. reference their opening, body, or close. 25 words max.>",
+    "<a specific drill for persuasiveness. reference their argument. 25 words max.>"
+  ],
+  "weakPhrases": ["<list of 3-8 vague or weak phrases pulled verbatim from the transcript, for highlighting — e.g. 'really good', 'kind of', 'I guess', 'a lot of things'>"]
+}`;
+
+function buildFeedbackPrompt({ prompt, transcript, durationSec, missingTranscript }) {
+  return `You are a warm, precise public speaking coach giving actionable feedback on a short impromptu speech. Your feedback must be specific and quote the speaker's actual words whenever possible. Generic advice is not useful.
+
+THE PROMPT THE SPEAKER RESPONDED TO:
+"${prompt}"
+
+THE SPEAKER'S TRANSCRIPT${missingTranscript ? ' (NOT AVAILABLE — you cannot quote specific phrases. Instead, acknowledge this limitation briefly in the notes, invent plausible but clearly-marked-as-hypothetical "phrases to upgrade" demonstrating common beginner patterns, and focus drills on general principles.)' : ''}:
+"""
+${transcript || '(transcript unavailable)'}
+"""
+
+Speech duration: ${Math.round(durationSec)} seconds. (Do NOT grade or mention duration/length — length doesn't matter here.)
+
+EVALUATE THESE THREE DIMENSIONS ON A 1–10 SCALE:
+- VOCABULARY: word precision, verb strength, variety. Flag vague hedges ("really", "kind of", "a lot", "thing", "stuff") and weak verbs ("was", "is", "got").
+- STORYTELLING: structure (did they hook in the opening, give a concrete example in the body, land with a memorable close?), use of specific sensory/emotional detail, narrative arc.
+- PERSUASIVENESS: did they make the listener care? Is there a stake, an argument, evidence, or a call to action? Could a skeptical listener be moved by what they said?
+
+CRITICAL RULES:
+1. The "phrases" array MUST contain quotes copied verbatim from the transcript (if available). Do NOT paraphrase. If the transcript is unavailable, mark hypothetical examples clearly.
+2. Pick phrases that have the HIGHEST upgrade potential — vague hedges, weak verbs, filler phrases — not cherry-picked weak moments.
+3. Rewrites must preserve the speaker's meaning and voice — don't turn them into someone else. Just sharpen.
+4. "wins" must quote a specific moment of strength. No generic praise.
+5. "drills" must reference specific content from THIS speech. Not generic tips.
+6. For the "persuasion.example" field, write the full before/after as specified, escaping quotes properly for JSON.
+
+${FEEDBACK_SCHEMA}`;
+}
+
+async function getFeedback({ prompt, transcript, durationSec }) {
+  const provider = state.settings.provider;
+  const missingTranscript = !transcript || transcript.trim().length < 10;
+  const userPrompt = buildFeedbackPrompt({ prompt, transcript, durationSec, missingTranscript });
+
+  if (provider === 'anthropic') {
+    if (!state.settings.anthropicKey) throw new Error('Anthropic API key not set. Open Settings.');
+    return callAnthropic(userPrompt);
+  } else {
+    if (!state.settings.openaiKey) throw new Error('OpenAI API key not set. Open Settings.');
+    return callOpenAI(userPrompt);
+  }
+}
+
+async function callAnthropic(userPrompt) {
+  const ANTHROPIC_MODELS = [
+    'claude-sonnet-4-5',
+    'claude-haiku-4-5',
+    'claude-3-5-sonnet-latest',
+    'claude-3-5-haiku-latest'
+  ];
+  let lastErr = null;
+  for (const model of ANTHROPIC_MODELS) {
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': state.settings.anthropicKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 2000,
+          messages: [{ role: 'user', content: userPrompt }]
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const text = data.content?.[0]?.text || '';
+        if (!text) throw new Error('Claude returned an empty response. Try again.');
+        console.log('Cadence: used Anthropic model:', model);
+        return parseJSONLoose(text);
+      }
+      // Parse error to decide if we should try the next model
+      let errMsg;
+      try {
+        const errData = await res.json();
+        errMsg = errData.error?.message || JSON.stringify(errData);
+      } catch { errMsg = await res.text(); }
+
+      // If it's auth/credit/rate-limit — no point trying other models, show it now
+      if (res.status === 401) throw new Error('Your Anthropic API key is invalid. Check Settings → make sure you pasted the full key starting with sk-ant-.');
+      if (res.status === 429) throw new Error('Rate limit or quota reached. Wait a moment, or add credit at console.anthropic.com → Billing.');
+      if (res.status === 400 && /credit|balance|insufficient/i.test(errMsg)) {
+        throw new Error('Your Anthropic account has no credit. Add some at console.anthropic.com → Plans & Billing → Add credit (even $5 lasts weeks).');
+      }
+      // If model not found, try next in list
+      if (res.status === 404 || /model|not.?found/i.test(errMsg)) {
+        lastErr = new Error(`Model "${model}" unavailable on your account; trying fallback…`);
+        console.warn(lastErr.message);
+        continue;
+      }
+      // Other 4xx/5xx — record and try next
+      lastErr = new Error(`Anthropic (${res.status}): ${errMsg}`);
+    } catch (e) {
+      // Network/CORS or the explicit throws above
+      if (/invalid|credit|rate limit|quota/i.test(e.message)) throw e;
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error('Could not reach Anthropic. Check your internet and API key.');
+}
+
+async function callOpenAI(userPrompt) {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + state.settings.openaiKey
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: userPrompt }],
+      response_format: { type: 'json_object' },
+      temperature: 0.7
+    })
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error('OpenAI error: ' + err);
+  }
+  const data = await res.json();
+  const text = data.choices?.[0]?.message?.content || '';
+  return parseJSONLoose(text);
+}
+
+function parseJSONLoose(text) {
+  // Strip code fences if present
+  let t = text.trim().replace(/^```(?:json)?/, '').replace(/```$/, '').trim();
+  // Find first { and last }
+  const start = t.indexOf('{'), end = t.lastIndexOf('}');
+  if (start >= 0 && end > start) t = t.slice(start, end + 1);
+  try { return JSON.parse(t); }
+  catch (e) { throw new Error('Could not parse feedback JSON. Raw response: ' + text.slice(0, 200)); }
+}
+
+/* ------------------------------------------------------------
+   10. HOME SCREEN
+   ------------------------------------------------------------ */
+async function renderHome() {
+  const plan = ensureTodayPlan();
+  $('#today-date').textContent = fmt.date(new Date());
+
+  // Stats
+  const p = state.progress;
+  const benchmarks = await DB.byType('benchmark');
+  $('#streak-count').textContent = p.streak;
+  $('#stat-streak').textContent = p.streak;
+  $('#stat-sessions').textContent = p.sessions;
+  $('#stat-minutes').textContent = Math.round(p.totalSeconds / 60);
+  $('#stat-benchmarks').textContent = benchmarks.length;
+
+  // Today list
+  const list = $('#today-list');
+  const items = [
+    { num: 1, title: 'Breath & warm-up', desc: 'Box breathing to open your voice', meta: '~2 min', done: plan.warmupDone, go: 'warmup' },
+    { num: 2, title: 'Tongue twister', desc: 'Read aloud — slow, medium, fast', meta: '~1 min', done: !!plan.twisterDone, go: 'articulation' },
+    { num: 3, title: 'Voice warm-up', desc: "Actor-style lips, jaw, and resonance", meta: '~2 min', done: !!plan.vocalDone, go: 'vocal' },
+    { num: 4, title: 'Impromptu speech', desc: '60 seconds + AI feedback', meta: '~5 min', done: !!plan.feedback, go: 'speaking' }
+  ];
+  list.innerHTML = items.map(it => `
+    <div class="ex-item ${it.done ? 'done' : ''}" data-go="${it.go}">
+      <div class="ex-num"><span>${it.num}</span></div>
+      <div class="ex-body">
+        <div class="ex-title">${it.title}</div>
+        <div class="ex-desc">${it.desc}</div>
+      </div>
+      <div class="ex-meta">${it.meta}</div>
+    </div>
+  `).join('');
+  $$('#today-list .ex-item').forEach(el => {
+    el.addEventListener('click', () => startExercise(el.dataset.go));
+  });
+
+  // Benchmark status
+  const wk = fmt.weekKey();
+  const thisWeekBm = benchmarks.find(b => b.weekKey === wk);
+  $('#bm-status').textContent = thisWeekBm
+    ? `You've recorded this week's benchmark — listen back or re-record anytime.`
+    : benchmarks.length > 0
+      ? `You have ${benchmarks.length} past recording${benchmarks.length>1?'s':''}. Record this week's to continue the series.`
+      : `Same prompt, every week. Listen back to hear yourself grow.`;
+}
+
+$('#start-today').addEventListener('click', () => startExercise('warmup'));
+$('#bm-prompt-card').addEventListener('click', () => show('benchmark'));
+
+function startExercise(which) {
+  const plan = ensureTodayPlan();
+  if (which === 'warmup') {
+    show('warmup');
+    resetBreathing();
+  } else if (which === 'articulation') {
+    show('articulation');
+    $('#twister-text').textContent = plan.twister;
+  } else if (which === 'vocal') {
+    show('vocal');
+    resetVocal();
+  } else if (which === 'speaking') {
+    show('speaking');
+    $('#speech-prompt').textContent = plan.prompt;
+    setupSpeaking();
+  }
+}
+
+/* ------------------------------------------------------------
+   11. BREATHING EXERCISE
+   ------------------------------------------------------------ */
+let breathTimer = null;
+function resetBreathing() {
+  const c = $('#breath-circle');
+  c.textContent = 'Begin';
+  c.className = 'breath-circle';
+  $('#breath-hint').textContent = 'Tap to start';
+  $('#warmup-next').disabled = !ensureTodayPlan().warmupDone;
+  clearInterval(breathTimer);
+}
+
+$('#breath-circle').addEventListener('click', () => {
+  if (breathTimer) return;
+  runBreathing();
+});
+
+function runBreathing() {
+  const circle = $('#breath-circle');
+  const hint = $('#breath-hint');
+  const phases = [
+    { label: 'Inhale', cls: 'expand', ms: 4000 },
+    { label: 'Hold',   cls: 'hold',   ms: 4000 },
+    { label: 'Exhale', cls: 'contract', ms: 4000 },
+    { label: 'Hold',   cls: '',       ms: 4000 }
+  ];
+  const totalRounds = 4;
+  let round = 0, phase = 0;
+  hint.textContent = `Round 1 of ${totalRounds}`;
+
+  function step() {
+    if (round >= totalRounds) {
+      circle.className = 'breath-circle';
+      circle.textContent = 'Done';
+      hint.textContent = 'Nicely done. Your voice is warm and ready.';
+      state.todayPlan.warmupDone = true;
+      saveTodayPlan();
+      $('#warmup-next').disabled = false;
+      breathTimer = null;
+      return;
+    }
+    const p = phases[phase];
+    circle.className = 'breath-circle ' + p.cls;
+    circle.textContent = p.label;
+    hint.textContent = `Round ${round+1} of ${totalRounds}`;
+    breathTimer = setTimeout(() => {
+      phase++;
+      if (phase >= phases.length) { phase = 0; round++; }
+      step();
+    }, p.ms);
+  }
+  step();
+}
+
+$('#warmup-next').addEventListener('click', () => startExercise('articulation'));
+
+/* ------------------------------------------------------------
+   12. TONGUE TWISTER (practice only — no recording)
+   ------------------------------------------------------------ */
+$('#twister-shuffle').addEventListener('click', () => {
+  state.todayPlan.twister = pick(TONGUE_TWISTERS, state.todayPlan.twister);
+  saveTodayPlan();
+  $('#twister-text').textContent = state.todayPlan.twister;
+});
+
+$('#twister-done').addEventListener('click', () => {
+  state.todayPlan.twisterDone = true;
+  saveTodayPlan();
+  startExercise('vocal');
+});
+
+/* ------------------------------------------------------------
+   12b. VOCAL WARM-UP (actor-style, no recording)
+   ------------------------------------------------------------ */
+let vocalTimer = null;
+let vocalStep = -1; // -1 idle, 0..N-1 running, N done
+let vocalStartTs = 0;
+
+function renderVocalProgress() {
+  const host = $('#vocal-progress');
+  if (!host) return;
+  host.innerHTML = VOICE_WARMUP_STEPS.map((_, i) => {
+    let cls = '';
+    if (vocalStep > i) cls = 'done';
+    else if (vocalStep === i) cls = 'active';
+    return `<div class="vocal-dot ${cls}"></div>`;
+  }).join('');
+}
+
+function resetVocal() {
+  if (vocalTimer) { clearInterval(vocalTimer); vocalTimer = null; }
+  vocalStep = -1;
+  renderVocalProgress();
+  $('#vocal-title').textContent = 'Ready when you are';
+  $('#vocal-instruction').textContent = "Tap the circle to begin. Each step auto-advances with a timer — if you need more time, don't rush.";
+  $('#vocal-counter').textContent = `Step 1 of ${VOICE_WARMUP_STEPS.length}`;
+  const t = $('#vocal-timer');
+  t.className = 'vocal-timer idle';
+  t.textContent = 'Tap to start';
+  $('#vocal-hint').textContent = 'You can skip ahead by tapping the timer.';
+  $('#vocal-next').disabled = !ensureTodayPlan().vocalDone;
+}
+
+function startVocalStep(i) {
+  vocalStep = i;
+  const step = VOICE_WARMUP_STEPS[i];
+  $('#vocal-title').textContent = step.title;
+  $('#vocal-instruction').textContent = step.instruction;
+  $('#vocal-counter').textContent = `Step ${i + 1} of ${VOICE_WARMUP_STEPS.length}`;
+  renderVocalProgress();
+
+  const t = $('#vocal-timer');
+  t.className = 'vocal-timer running';
+  t.textContent = step.seconds + 's';
+  vocalStartTs = Date.now();
+
+  if (vocalTimer) clearInterval(vocalTimer);
+  vocalTimer = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - vocalStartTs) / 1000);
+    const remaining = step.seconds - elapsed;
+    if (remaining <= 0) {
+      clearInterval(vocalTimer); vocalTimer = null;
+      if (i + 1 < VOICE_WARMUP_STEPS.length) startVocalStep(i + 1);
+      else finishVocal();
+    } else {
+      t.textContent = remaining + 's';
+    }
+  }, 250);
+}
+
+function finishVocal() {
+  if (vocalTimer) { clearInterval(vocalTimer); vocalTimer = null; }
+  vocalStep = VOICE_WARMUP_STEPS.length;
+  renderVocalProgress();
+  const t = $('#vocal-timer');
+  t.className = 'vocal-timer idle';
+  t.textContent = 'Done';
+  $('#vocal-title').textContent = 'Warmed up.';
+  $('#vocal-instruction').textContent = 'Your lips, jaw, and resonance are activated. Move on to your speech.';
+  $('#vocal-counter').textContent = 'Complete';
+  $('#vocal-hint').textContent = 'Tap Continue to record your speech.';
+  state.todayPlan.vocalDone = true;
+  saveTodayPlan();
+  $('#vocal-next').disabled = false;
+}
+
+$('#vocal-timer').addEventListener('click', () => {
+  if (vocalStep === -1) startVocalStep(0);
+  else if (vocalStep < VOICE_WARMUP_STEPS.length) {
+    // skip ahead
+    if (vocalTimer) { clearInterval(vocalTimer); vocalTimer = null; }
+    if (vocalStep + 1 < VOICE_WARMUP_STEPS.length) startVocalStep(vocalStep + 1);
+    else finishVocal();
+  } else {
+    // restart
+    startVocalStep(0);
+  }
+});
+
+$('#vocal-next').addEventListener('click', () => startExercise('speaking'));
+
+/* ------------------------------------------------------------
+   13. SPEAKING EXERCISE
+   ------------------------------------------------------------ */
+function renderTranscriptStatus(elId, { srSupported, srError, transcript, hasWhisper }) {
+  const el = $('#' + elId);
+  if (!el) return;
+  let cls = 'ok', dotLabel = 'Captured';
+  if (!srSupported) { cls = 'warn'; dotLabel = hasWhisper ? 'Live capture unavailable — Whisper will transcribe when you submit' : 'Live capture unavailable — please paste below'; }
+  else if (srError) { cls = 'warn'; dotLabel = `Capture error: ${srError}${hasWhisper ? ' — Whisper will try at submit' : ' — paste below'}`; }
+  else if (!transcript || transcript.length < 5) { cls = 'warn'; dotLabel = hasWhisper ? 'Nothing captured — Whisper will try at submit' : 'Nothing captured — please paste below'; }
+  el.className = 'transcript-status ' + cls;
+  el.innerHTML = `<span class="dot"></span>${dotLabel}`;
+}
+
+function setTranscriptStatus(elId, cls, label) {
+  const el = $('#' + elId);
+  if (!el) return;
+  el.className = 'transcript-status ' + cls;
+  el.innerHTML = `<span class="dot"></span>${label}`;
+}
+
+// Runs Whisper on the blob whenever an OpenAI key is set, and replaces
+// the textarea content with the higher-quality transcript. While it runs,
+// the submit button is disabled so the user always submits the clean version.
+async function autoTranscribe(prefix, blob, liveInfo) {
+  const hasWhisper = !!state.settings.openaiKey;
+  const statusId = prefix + '-transcript-status';
+  const editId   = prefix + '-transcript-edit';
+  const submitBtnId = prefix === 'sp' ? 'sp-analyze' : 'bm-save';
+  if (!hasWhisper) {
+    // No OpenAI key — fall back to the live capture status we had before
+    renderTranscriptStatus(statusId, { ...liveInfo, hasWhisper: false });
+    return;
+  }
+  // We have Whisper — use it as the authoritative transcript
+  setTranscriptStatus(statusId, '', 'Transcribing with Whisper for better quality…');
+  const btn = $('#' + submitBtnId);
+  if (btn) btn.disabled = true;
+  try {
+    const whisperText = (await transcribeWithWhisper(blob) || '').trim();
+    if (whisperText) {
+      $('#' + editId).value = whisperText;
+      setTranscriptStatus(statusId, 'ok', 'Transcribed by Whisper');
+    } else {
+      setTranscriptStatus(statusId, 'warn', 'Whisper returned empty — please type or paste what you said.');
+    }
+  } catch (e) {
+    console.warn('Whisper failed:', e);
+    const msg = (e && e.message) ? e.message.replace('Whisper error: ', '') : 'error';
+    setTranscriptStatus(statusId, 'warn', `Whisper failed (${msg}). Using live capture — edit below if needed.`);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+let spRec = null;
+function setupSpeaking() {
+  if (spRec) spRec.reset();
+  spRec = new Recorder({
+    waveEl: $('#sp-wave'),
+    timeEl: $('#sp-time'),
+    maxSeconds: 300,
+    captureTranscript: true,
+    onStop: ({ url, duration, blob, transcript, srSupported, srError }) => {
+      state.pending.speech = { url, duration, blob, transcript };
+      $('#sp-playback').classList.remove('hidden');
+      $('#sp-analyze').disabled = false;
+      $('#sp-hint').textContent = `Recorded ${fmt.time(duration)}. Review the transcript below, then get feedback.`;
+      $('#sp-record').classList.remove('recording');
+      Playback.attach('sp', url);
+      // Show transcript preview with the live-captured text first
+      $('#sp-transcript-box').classList.remove('hidden');
+      $('#sp-transcript-edit').value = transcript || '';
+      // Then upgrade to Whisper if available
+      autoTranscribe('sp', blob, { srSupported, srError, transcript });
+    }
+  });
+  $('#sp-playback').classList.add('hidden');
+  $('#sp-analyze').disabled = true;
+  $('#sp-hint').textContent = 'Tap to record · speak freely';
+  $('#sp-transcript-box').classList.add('hidden');
+  $('#sp-transcript-edit').value = '';
+  state.pending.speech = null;
+}
+
+$('#new-prompt').addEventListener('click', () => {
+  state.todayPlan.prompt = pick(SPEECH_PROMPTS, state.todayPlan.prompt);
+  saveTodayPlan();
+  $('#speech-prompt').textContent = state.todayPlan.prompt;
+});
+
+$('#sp-record').addEventListener('click', async () => {
+  const btn = $('#sp-record');
+  if (spRec.state === 'recording') {
+    spRec.stop();
+  } else if (spRec.state === 'stopped') {
+    setupSpeaking();
+    await spRec.start();
+    btn.classList.add('recording');
+    $('#sp-hint').textContent = 'Recording… tap again to stop.';
+  } else {
+    await spRec.start();
+    btn.classList.add('recording');
+    $('#sp-hint').textContent = 'Recording… tap again to stop.';
+  }
+});
+
+$('#sp-analyze').addEventListener('click', async () => {
+  const rec = state.pending.speech;
+  if (!rec) return;
+  // Prefer the (possibly-edited) textarea transcript; fall back to live-captured
+  const edited = ($('#sp-transcript-edit').value || '').trim();
+  const finalTranscript = edited || (rec.transcript || '').trim();
+  // Save recording first
+  const entry = {
+    id: 'sp-' + Date.now(),
+    type: 'speech',
+    createdAt: Date.now(),
+    date: todayKey(),
+    blob: rec.blob,
+    duration: rec.duration,
+    prompt: ensureTodayPlan().prompt,
+    transcript: finalTranscript
+  };
+  await DB.put(entry);
+  state.todayPlan.spId = entry.id;
+  saveTodayPlan();
+
+  // Open feedback screen, begin analysis
+  state.feedbackFrom = 'home';
+  show('feedback');
+  runFeedbackFlow(entry);
+});
+
+/* ------------------------------------------------------------
+   14. FEEDBACK FLOW
+   ------------------------------------------------------------ */
+function setFeedbackHeader(entry, { fromProgress = false } = {}) {
+  const eyebrow = $('#screen-feedback .eyebrow');
+  const heading = $('#screen-feedback > .container > .section');
+  const lead    = $('#screen-feedback > .container > .lead');
+  const backBtn = $('#screen-feedback [data-back]');
+  if (fromProgress && entry) {
+    if (eyebrow) eyebrow.textContent = (entry.type === 'benchmark' ? 'Weekly benchmark' : 'Speech') + ' · ' + fmt.date(entry.createdAt);
+    if (heading) heading.textContent = 'Feedback on your recording.';
+    if (lead)    lead.textContent    = entry.prompt || BENCHMARK_PROMPT;
+    if (backBtn) { backBtn.dataset.back = 'progress'; backBtn.textContent = '← Back to progress'; }
+  } else {
+    if (eyebrow) eyebrow.textContent = 'Session feedback';
+    if (heading) heading.textContent = "Here's how today went.";
+    if (lead)    lead.textContent    = 'Analysis of your impromptu speech. Scores are 1–10. Use the tips below to sharpen tomorrow.';
+    if (backBtn) { backBtn.dataset.back = 'home'; backBtn.textContent = 'Back to today →'; }
+  }
+}
+
+async function runFeedbackFlow(entry) {
+  // Set header based on where we came from
+  setFeedbackHeader(entry, { fromProgress: state.feedbackFrom === 'progress' });
+
+  // Reset loading shell in case a previous error replaced its innerHTML
+  $('#feedback-loading').innerHTML = `
+    <div class="breath-circle" style="width: 80px; height: 80px; font-size: 12px; animation: pulse 2s infinite;">Analyzing</div>
+    <p class="body mt-24" id="feedback-status">Transcribing your recording…</p>
+  `;
+  $('#feedback-loading').classList.remove('hidden');
+  $('#feedback-content').classList.add('hidden');
+  const setStatus = (t) => { const el = $('#feedback-status'); if (el) el.textContent = t; };
+
+  const provider = state.settings.provider;
+  const hasKey = (provider === 'anthropic' && state.settings.anthropicKey) ||
+                 (provider === 'openai' && state.settings.openaiKey);
+
+  if (!hasKey) {
+    $('#feedback-loading').innerHTML = `
+      <h3>Add your API key to get feedback</h3>
+      <p class="body mt-12">Cadence needs an API key to analyze your speech. Your recording has been saved — you can get feedback once you add a key in Settings.</p>
+      <button class="btn btn-primary mt-24" onclick="openSettings()">Open Settings</button>
+      <button class="btn btn-ghost mt-12" onclick="show('home')" style="margin-left: 8px;">Back to home</button>
+    `;
+    return;
+  }
+
+  try {
+    let transcript = entry.transcript || '';
+    if (!transcript && state.settings.openaiKey) {
+      setStatus('Transcribing your recording with Whisper…');
+      try { transcript = await transcribeWithWhisper(entry.blob); }
+      catch (e) { console.warn('Whisper failed:', e); transcript = ''; }
+    }
+    if (transcript) {
+      setStatus('Analyzing vocabulary, storytelling, and persuasiveness…');
+    } else {
+      setStatus('Generating coaching notes (no transcript available — feedback will be generic)…');
+    }
+
+    const fb = await getFeedback({
+      prompt: entry.prompt,
+      transcript,
+      durationSec: entry.duration
+    });
+
+    // Save feedback onto plan + progress
+    const s = fb.scores || {};
+    const vocab = s.vocabulary?.score || 0;
+    const story = s.storytelling?.score || 0;
+    const persu = s.persuasiveness?.score || 0;
+    const avg = Math.round((vocab + story + persu) / 3 * 10) / 10;
+    state.progress.scores.push({ date: entry.date, avg, scores: [vocab, story, persu] });
+
+    // Only count it toward today's session/streak/minutes if the recording is from today
+    const tk = todayKey();
+    if (entry.date === tk) {
+      state.todayPlan.feedback = fb;
+      saveTodayPlan();
+      const lastDate = state.progress.lastSessionDate;
+      if (lastDate !== tk) {
+        const y = new Date(); y.setDate(y.getDate() - 1);
+        const yKey = `${y.getFullYear()}-${(y.getMonth()+1).toString().padStart(2,'0')}-${y.getDate().toString().padStart(2,'0')}`;
+        state.progress.streak = (lastDate === yKey) ? state.progress.streak + 1 : 1;
+        state.progress.sessions += 1;
+        state.progress.lastSessionDate = tk;
+      }
+      state.progress.totalSeconds += Math.round(entry.duration);
+    }
+    saveProgress();
+
+    // Also persist transcript back to recording entry
+    entry.transcript = transcript;
+    entry.feedback = fb;
+    await DB.put(entry);
+
+    renderFeedback(fb, transcript);
+  } catch (e) {
+    console.error(e);
+    const escaped = (e.message || String(e)).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    window._lastFailedEntry = entry;
+    $('#feedback-loading').innerHTML = `
+      <h3>Couldn't get feedback</h3>
+      <p class="body mt-12" style="color: var(--warn); text-align: left; max-width: 60ch; margin: 12px auto 0;">${escaped}</p>
+      <p class="body mt-12" style="text-align: left; max-width: 60ch; margin: 12px auto 0;">Your recording is safely saved. Fix the issue above and retry — no need to re-record.</p>
+      <div class="hstack" style="justify-content: center; margin-top: 24px; gap: 10px;">
+        <button class="btn btn-primary" onclick="retryFeedback()">Retry</button>
+        <button class="btn btn-ghost" onclick="openSettings()">Open Settings</button>
+        <button class="btn btn-ghost" onclick="show('home')">Back to home</button>
+      </div>
+    `;
+  }
+}
+
+function retryFeedback() {
+  if (window._lastFailedEntry) runFeedbackFlow(window._lastFailedEntry);
+  else show('home');
+}
+window.retryFeedback = retryFeedback;
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderFeedback(fb, transcript) {
+  $('#feedback-loading').classList.add('hidden');
+  $('#feedback-content').classList.remove('hidden');
+
+  // Normalize — handle both old and new schema just in case
+  const scores = fb.scores || {
+    vocabulary:     fb.vocabulary,
+    storytelling:   fb.storytelling,
+    persuasiveness: fb.persuasiveness || { score: '—', note: '' }
+  };
+
+  // Scores
+  $('#fb-vocab').textContent     = scores.vocabulary?.score ?? '—';
+  $('#fb-vocab-desc').textContent = scores.vocabulary?.note || '';
+  $('#fb-story').textContent     = scores.storytelling?.score ?? '—';
+  $('#fb-story-desc').textContent = scores.storytelling?.note || '';
+  $('#fb-persu').textContent     = scores.persuasiveness?.score ?? '—';
+  $('#fb-persu-desc').textContent = scores.persuasiveness?.note || '';
+
+  // Wins
+  $('#fb-wins').textContent = fb.wins || '';
+
+  // Phrases to upgrade
+  const phrases = Array.isArray(fb.phrases) ? fb.phrases : [];
+  $('#fb-phrases').innerHTML = phrases.length === 0
+    ? '<p class="body muted">No specific phrase upgrades identified.</p>'
+    : phrases.map(p => `
+        <div class="phrase-card">
+          <div class="phrase-label">You said</div>
+          <div class="phrase-quote old">"${escapeHtml(p.youSaid || '')}"</div>
+          <div class="phrase-label">Try this</div>
+          <div class="phrase-quote new">"${escapeHtml(p.tryThis || '')}"</div>
+          <div class="phrase-why">${escapeHtml(p.why || '')}</div>
+        </div>
+      `).join('');
+
+  // Structure
+  const st = fb.structure || {};
+  const parts = [
+    { label: 'Opening', quote: st.opening?.quote, note: st.opening?.note },
+    { label: 'Body',    quote: null,               note: st.body?.note },
+    { label: 'Close',   quote: st.close?.quote,   note: st.close?.note }
+  ];
+  $('#fb-structure').innerHTML = parts.map(p => `
+    <div class="struct-item">
+      <div class="struct-label">${p.label}</div>
+      ${p.quote ? `<div class="struct-quote">"${escapeHtml(p.quote)}"</div>` : ''}
+      <div class="struct-note">${escapeHtml(p.note || '')}</div>
+    </div>
+  `).join('');
+
+  // Persuasion
+  const pers = fb.persuasion || {};
+  $('#fb-persu-note').textContent = pers.note || '';
+  $('#fb-persu-example').innerHTML = pers.example
+    ? `<div class="persu-example">${escapeHtml(pers.example).replace(/You said:/gi, '<b>You said:</b>').replace(/A more persuasive version:/gi, '<br><br><b>Try:</b>').replace(/Why:/gi, '<br><br><b>Why:</b>')}</div>`
+    : '';
+
+  // Drills
+  const drills = Array.isArray(fb.drills) ? fb.drills : (typeof fb.tips === 'string' ? fb.tips.split(/\n|(?=\d\.)/).filter(x => x.trim()).map(s => s.replace(/^\d+[\.\)]\s*/, '')) : []);
+  $('#fb-drills').innerHTML = drills.length === 0
+    ? '<p class="body muted">No drills generated.</p>'
+    : drills.map((d, i) => `
+        <div class="drill-item">
+          <div class="drill-num">${i + 1}</div>
+          <div class="drill-text">${escapeHtml(d)}</div>
+        </div>
+      `).join('');
+
+  // Transcript with highlighted weak phrases
+  if (transcript) {
+    const weak = Array.isArray(fb.weakPhrases) ? fb.weakPhrases.filter(w => w && w.trim()) : [];
+    let html = escapeHtml(transcript);
+    // Sort by length desc to avoid sub-match clobbering
+    weak.sort((a,b) => b.length - a.length).forEach(w => {
+      const safe = escapeHtml(w);
+      const re = new RegExp(safe.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      html = html.replace(re, m => `<span class="weak-phrase">${m}</span>`);
+    });
+    $('#fb-transcript').innerHTML = '"' + html + '"';
+  } else {
+    $('#fb-transcript').textContent = '(No transcript captured. The browser\'s speech recognition may not be supported, or you\'re offline. Future recordings will transcribe automatically.)';
+  }
+}
+
+/* ------------------------------------------------------------
+   15. BENCHMARK SCREEN
+   ------------------------------------------------------------ */
+let bmRec = null;
+async function renderBenchmark() {
+  if (bmRec) bmRec.reset();
+  bmRec = new Recorder({
+    waveEl: $('#bm-wave'),
+    timeEl: $('#bm-time'),
+    maxSeconds: 300,
+    captureTranscript: true,
+    onStop: ({ url, duration, blob, transcript, srSupported, srError }) => {
+      state.pending.benchmark = { url, duration, blob, transcript };
+      $('#bm-playback').classList.remove('hidden');
+      $('#bm-save').disabled = false;
+      $('#bm-redo').disabled = false;
+      $('#bm-hint').textContent = `Recorded ${fmt.time(duration)}. Review the transcript, then save.`;
+      $('#bm-record').classList.remove('recording');
+      Playback.attach('bm', url);
+      // Show transcript preview with the live-captured text first
+      $('#bm-transcript-box').classList.remove('hidden');
+      $('#bm-transcript-edit').value = transcript || '';
+      // Then upgrade to Whisper if available
+      autoTranscribe('bm', blob, { srSupported, srError, transcript });
+    }
+  });
+  $('#bm-playback').classList.add('hidden');
+  $('#bm-save').disabled = true;
+  $('#bm-redo').disabled = true;
+  $('#bm-hint').textContent = 'Tap to record · 90s benchmark';
+  $('#bm-transcript-box').classList.add('hidden');
+  $('#bm-transcript-edit').value = '';
+  state.pending.benchmark = null;
+
+  await renderBenchmarkHistory();
+}
+
+$('#bm-record').addEventListener('click', async () => {
+  const btn = $('#bm-record');
+  if (bmRec.state === 'recording') {
+    bmRec.stop();
+  } else if (bmRec.state === 'stopped') {
+    renderBenchmark();
+    await bmRec.start();
+    btn.classList.add('recording');
+    $('#bm-hint').textContent = 'Recording… tap again to stop.';
+  } else {
+    await bmRec.start();
+    btn.classList.add('recording');
+    $('#bm-hint').textContent = 'Recording… tap again to stop.';
+  }
+});
+
+$('#bm-redo').addEventListener('click', () => renderBenchmark());
+
+$('#bm-save').addEventListener('click', async () => {
+  const rec = state.pending.benchmark;
+  if (!rec) return;
+  const edited = ($('#bm-transcript-edit').value || '').trim();
+  const finalTranscript = edited || (rec.transcript || '').trim();
+  const entry = {
+    id: 'bm-' + Date.now(),
+    type: 'benchmark',
+    createdAt: Date.now(),
+    date: todayKey(),
+    weekKey: fmt.weekKey(),
+    blob: rec.blob,
+    duration: rec.duration,
+    prompt: BENCHMARK_PROMPT,
+    transcript: finalTranscript
+  };
+  await DB.put(entry);
+  toast('Benchmark saved. Great work.');
+  renderBenchmark();
+});
+
+async function renderBenchmarkHistory() {
+  const items = await DB.byType('benchmark');
+  const host = $('#bm-history');
+  if (items.length === 0) {
+    host.innerHTML = '<p class="muted" style="font-size: 14px;">No recordings yet. Your first will be the baseline.</p>';
+    return;
+  }
+  host.innerHTML = items.map((it, i) => {
+    const url = URL.createObjectURL(it.blob);
+    const label = i === items.length - 1 ? 'Baseline' : `Week ${items.length - i}`;
+    return `
+      <div class="bm-row">
+        <div class="bm-label">
+          <div class="bm-week">${label} · ${it.weekKey}</div>
+          <div class="bm-date">${fmt.date(it.createdAt)} · ${fmt.time(it.duration)}</div>
+        </div>
+        <button class="play-btn" data-bm-play="${it.id}" data-url="${url}">
+          <svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><path d="M1 1l10 6-10 6V1z"/></svg>
+        </button>
+        <button class="btn btn-ghost btn-sm" data-bm-download="${it.id}">Download</button>
+        <button class="btn btn-ghost btn-sm" data-bm-delete="${it.id}" style="color: var(--warn);">Delete</button>
+      </div>
+    `;
+  }).join('');
+
+  $$('[data-bm-play]', host).forEach(btn => {
+    const audio = new Audio(btn.dataset.url);
+    btn.addEventListener('click', () => {
+      if (audio.paused) {
+        // Pause any other bm audio
+        $$('[data-bm-play]').forEach(b => { if (b !== btn && b._audio) b._audio.pause(); });
+        audio.play();
+        btn.innerHTML = '<svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><rect x="0" y="0" width="3" height="14"/><rect x="7" y="0" width="3" height="14"/></svg>';
+      } else {
+        audio.pause();
+        btn.innerHTML = '<svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><path d="M1 1l10 6-10 6V1z"/></svg>';
+      }
+    });
+    audio.addEventListener('ended', () => {
+      btn.innerHTML = '<svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><path d="M1 1l10 6-10 6V1z"/></svg>';
+    });
+    btn._audio = audio;
+  });
+
+  $$('[data-bm-download]', host).forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const item = items.find(x => x.id === btn.dataset.bmDownload);
+      if (!item) return;
+      downloadBlob(item.blob, `cadence-benchmark-${item.weekKey}.webm`);
+    });
+  });
+
+  $$('[data-bm-delete]', host).forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Delete this benchmark? This cannot be undone.')) return;
+      await DB.del(btn.dataset.bmDelete);
+      renderBenchmarkHistory();
+      toast('Recording deleted.');
+    });
+  });
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ------------------------------------------------------------
+   16. PROGRESS SCREEN
+   ------------------------------------------------------------ */
+async function renderProgress() {
+  const p = state.progress;
+  $('#p-streak').textContent = p.streak;
+  $('#p-sessions').textContent = p.sessions;
+  $('#p-minutes').textContent = Math.round(p.totalSeconds / 60);
+  const avg = p.scores.length > 0
+    ? (p.scores.reduce((a, s) => a + s.avg, 0) / p.scores.length).toFixed(1)
+    : '—';
+  $('#p-avg').textContent = avg;
+
+  const all = await DB.all();
+  const sorted = all.sort((a,b) => b.createdAt - a.createdAt);
+  const host = $('#session-history');
+  if (sorted.length === 0) {
+    host.innerHTML = '<p class="muted" style="font-size: 14px;">Nothing recorded yet. Today is a good day to start.</p>';
+    return;
+  }
+  host.innerHTML = sorted.map(it => {
+    const typeLabel = it.type === 'articulation' ? 'Articulation' : it.type === 'speech' ? 'Speech' : 'Benchmark';
+    const contextText = it.type === 'articulation' ? (it.twister || '') : (it.prompt || (it.type === 'benchmark' ? BENCHMARK_PROMPT : ''));
+    const isBm = it.type === 'benchmark';
+    let scoreBadge = '';
+    if (it.feedback) {
+      const s = it.feedback.scores || {
+        vocabulary:     it.feedback.vocabulary,
+        storytelling:   it.feedback.storytelling,
+        persuasiveness: it.feedback.persuasiveness || it.feedback.pronunciation // backward-compat
+      };
+      const parts = [s.vocabulary?.score, s.storytelling?.score, s.persuasiveness?.score].filter(x => typeof x === 'number');
+      if (parts.length) {
+        const avg = (parts.reduce((a,b)=>a+b,0)/parts.length).toFixed(1);
+        scoreBadge = `<span style="font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums;">Avg ${avg}/10</span>`;
+      }
+    }
+    const url = URL.createObjectURL(it.blob);
+    // Feedback button: applies to speech + benchmark recordings
+    const canHaveFeedback = it.type === 'speech' || it.type === 'benchmark';
+    let feedbackBtn = '';
+    if (canHaveFeedback) {
+      feedbackBtn = it.feedback
+        ? `<button class="btn btn-ghost btn-sm" data-hist-view-fb="${it.id}">View feedback</button>`
+        : `<button class="btn btn-ghost btn-sm" data-hist-get-fb="${it.id}" style="border-color: #1a1a1a; color: #1a1a1a;">Get feedback</button>`;
+    }
+    return `
+      <div class="bm-row ${isBm ? 'is-benchmark' : ''}">
+        <div class="bm-label">
+          <div class="bm-week">${typeLabel} · ${fmt.dateShort(it.createdAt)}</div>
+          <div class="bm-date" style="font-size: 13px; font-weight: 400; color: var(--muted); max-width: 58ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${contextText}</div>
+        </div>
+        ${scoreBadge}
+        <button class="play-btn" data-hist-play="${it.id}" data-url="${url}">
+          <svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><path d="M1 1l10 6-10 6V1z"/></svg>
+        </button>
+        ${feedbackBtn}
+        <button class="btn btn-ghost btn-sm" data-hist-download="${it.id}" data-ext="webm">Download</button>
+        <button class="bm-delete" data-hist-delete="${it.id}" title="Delete recording" aria-label="Delete recording">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11M6 4V2.5a1 1 0 011-1h2a1 1 0 011 1V4M4 4v9.5a1 1 0 001 1h6a1 1 0 001-1V4"/><path d="M6.5 7.5v4M9.5 7.5v4"/></svg>
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  $$('[data-hist-play]', host).forEach(btn => {
+    const audio = new Audio(btn.dataset.url);
+    btn.addEventListener('click', () => {
+      if (audio.paused) {
+        $$('[data-hist-play]').forEach(b => { if (b !== btn && b._audio) b._audio.pause(); });
+        audio.play();
+        btn.innerHTML = '<svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><rect x="0" y="0" width="3" height="14"/><rect x="7" y="0" width="3" height="14"/></svg>';
+      } else {
+        audio.pause();
+        btn.innerHTML = '<svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><path d="M1 1l10 6-10 6V1z"/></svg>';
+      }
+    });
+    audio.addEventListener('ended', () => {
+      btn.innerHTML = '<svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><path d="M1 1l10 6-10 6V1z"/></svg>';
+    });
+    btn._audio = audio;
+  });
+
+  $$('[data-hist-download]', host).forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const rec = await DB.get(btn.dataset.histDownload);
+      downloadBlob(rec.blob, `cadence-${rec.type}-${fmt.dateShort(rec.createdAt).replace(/\s/g, '-')}.webm`);
+    });
+  });
+
+  $$('[data-hist-view-fb]', host).forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const rec = await DB.get(btn.dataset.histViewFb);
+      viewFeedback(rec);
+    });
+  });
+
+  $$('[data-hist-get-fb]', host).forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const rec = await DB.get(btn.dataset.histGetFb);
+      // Backfill prompt for benchmarks saved before prompt-storage existed
+      if (rec.type === 'benchmark' && !rec.prompt) rec.prompt = BENCHMARK_PROMPT;
+      show('feedback');
+      state.feedbackFrom = 'progress';
+      runFeedbackFlow(rec);
+    });
+  });
+
+  $$('[data-hist-delete]', host).forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.histDelete;
+      const rec = await DB.get(id);
+      if (!rec) return;
+      const typeLabel = rec.type === 'articulation' ? 'articulation' : rec.type === 'speech' ? 'speech' : 'benchmark';
+      const confirmed = confirm(`Delete this ${typeLabel} recording from ${fmt.dateShort(rec.createdAt)}? This can't be undone.`);
+      if (!confirmed) return;
+      await DB.del(id);
+      toast('Recording deleted.');
+      renderProgress();
+    });
+  });
+}
+
+/* ------------------------------------------------------------
+   View existing feedback on a past recording
+   ------------------------------------------------------------ */
+function viewFeedback(entry) {
+  state.feedbackFrom = 'progress';
+  show('feedback');
+  setFeedbackHeader(entry, { fromProgress: true });
+  $('#feedback-loading').classList.add('hidden');
+  $('#feedback-content').classList.remove('hidden');
+  renderFeedback(entry.feedback, entry.transcript || '');
+}
+window.viewFeedback = viewFeedback;
+
+$('#export-all').addEventListener('click', async () => {
+  const all = await DB.all();
+  if (all.length === 0) { toast('Nothing to export yet.'); return; }
+  for (const it of all) {
+    const name = `cadence-${it.type}-${fmt.dateShort(it.createdAt).replace(/\s/g, '-')}.webm`;
+    downloadBlob(it.blob, name);
+    await new Promise(r => setTimeout(r, 150));
+  }
+  toast(`Downloading ${all.length} recordings…`);
+});
+
+/* ------------------------------------------------------------
+   17. SETTINGS MODAL
+   ------------------------------------------------------------ */
+function openSettings() {
+  $('#setting-provider').value = state.settings.provider;
+  $('#setting-anthropic-key').value = state.settings.anthropicKey || '';
+  $('#setting-openai-key').value = state.settings.openaiKey || '';
+  $('#setting-name').value = state.settings.name || '';
+  $('#settings-modal').classList.add('show');
+}
+function closeSettings() { $('#settings-modal').classList.remove('show'); }
+
+$('#open-settings').addEventListener('click', openSettings);
+$('#settings-cancel').addEventListener('click', closeSettings);
+$('#settings-modal').addEventListener('click', (e) => {
+  if (e.target === $('#settings-modal')) closeSettings();
+});
+$('#settings-save').addEventListener('click', () => {
+  state.settings.provider = $('#setting-provider').value;
+  state.settings.anthropicKey = $('#setting-anthropic-key').value.trim();
+  state.settings.openaiKey = $('#setting-openai-key').value.trim();
+  state.settings.name = $('#setting-name').value.trim();
+  saveSettings();
+  closeSettings();
+  toast('Settings saved.');
+  renderHome();
+});
+
+/* ------------------------------------------------------------
+   18. NAV + BACK BUTTON WIRING
+   ------------------------------------------------------------ */
+$$('.nav-link').forEach(n => {
+  n.addEventListener('click', () => {
+    const s = n.dataset.nav;
+    if (s === 'home') show('home');
+    else show(s);
+  });
+});
+$$('[data-back]').forEach(b => {
+  b.addEventListener('click', () => show(b.dataset.back));
+});
+
+/* Expose some helpers for inline onclicks */
+window.show = show;
+window.openSettings = openSettings;
+
+/* ------------------------------------------------------------
+   19. FIRST-RUN + BOOT
+   ------------------------------------------------------------ */
+function boot() {
+  // First-run onboarding: prompt settings if no key
+  if (!state.settings.anthropicKey && !state.settings.openaiKey) {
+    setTimeout(() => {
+      toast('Welcome! Add your API key in Settings to enable AI feedback.', 3500);
+    }, 800);
+  }
+  ensureTodayPlan();
+  renderHome();
+
+  // Check browser protocol — warn if file://
+  if (location.protocol === 'file:') {
+    setTimeout(() => {
+      toast('Tip: Chrome blocks mic on file:// — use Firefox, or run a local server.', 5000);
+    }, 1500);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', boot);
+if (document.readyState === 'interactive' || document.readyState === 'complete') boot();
+
+
+
+
+</script>
+</body>
+</html>
