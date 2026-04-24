@@ -858,27 +858,38 @@
 <div class="modal-backdrop" id="settings-modal">
   <div class="modal">
     <h2>Settings</h2>
-    <div class="hint">AI keys are stored only in your browser. Never sent anywhere but to the provider you choose.</div>
+    <div class="hint">Use an access code to share someone's keys safely, or paste your own API keys for personal use. Everything is stored only in your browser.</div>
 
     <div class="field">
-      <label>AI provider</label>
-      <select class="input select" id="setting-provider">
-        <option value="anthropic">Anthropic (Claude)</option>
-        <option value="openai">OpenAI (GPT + Whisper)</option>
-      </select>
+      <label>Access code <span style="color: var(--muted); font-weight: 400;">— if you were given one</span></label>
+      <input type="password" class="input" id="setting-access-code" placeholder="e.g. alex-may-2026" autocomplete="off" />
+      <div class="hint mt-8" style="margin-bottom: 0;">When set, Cadence uses the shared backend instead of your own API keys.</div>
     </div>
 
-    <div class="field" id="field-anthropic">
-      <label>Anthropic API key</label>
-      <input type="password" class="input" id="setting-anthropic-key" placeholder="sk-ant-…" autocomplete="off" />
-      <div class="hint mt-8" style="margin-bottom: 0;">Get one at console.anthropic.com → Settings → API Keys</div>
-    </div>
+    <details class="field" style="border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;">
+      <summary style="cursor: pointer; font-size: 13px; font-weight: 500; color: var(--ink-2); user-select: none;">Advanced — use your own API keys</summary>
+      <div style="margin-top: 16px;">
+        <div class="field">
+          <label>AI provider</label>
+          <select class="input select" id="setting-provider">
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI (GPT + Whisper)</option>
+          </select>
+        </div>
 
-    <div class="field" id="field-openai">
-      <label>OpenAI API key</label>
-      <input type="password" class="input" id="setting-openai-key" placeholder="sk-…" autocomplete="off" />
-      <div class="hint mt-8" style="margin-bottom: 0;">Get one at platform.openai.com → API Keys</div>
-    </div>
+        <div class="field" id="field-anthropic">
+          <label>Anthropic API key</label>
+          <input type="password" class="input" id="setting-anthropic-key" placeholder="sk-ant-…" autocomplete="off" />
+          <div class="hint mt-8" style="margin-bottom: 0;">Get one at console.anthropic.com → Settings → API Keys</div>
+        </div>
+
+        <div class="field" id="field-openai" style="margin-bottom: 0;">
+          <label>OpenAI API key</label>
+          <input type="password" class="input" id="setting-openai-key" placeholder="sk-…" autocomplete="off" />
+          <div class="hint mt-8" style="margin-bottom: 0;">Get one at platform.openai.com → API Keys</div>
+        </div>
+      </div>
+    </details>
 
     <div class="field">
       <label>Your name (optional)</label>
@@ -1096,7 +1107,7 @@ const Store = {
    ------------------------------------------------------------ */
 const state = {
   currentScreen: 'home',
-  settings: Store.get('settings', { provider: 'anthropic', anthropicKey: '', openaiKey: '', name: '' }),
+  settings: Store.get('settings', { provider: 'anthropic', accessCode: '', anthropicKey: '', openaiKey: '', name: '' }),
   progress: Store.get('progress', { streak: 0, lastSessionDate: null, sessions: 0, totalSeconds: 0, scores: [] }),
   todayPlan: Store.get('todayPlan', null),  // { date, twister, prompt, warmupDone, twisterDone, vocalDone, spId, feedback }
   pending: {
@@ -1407,11 +1418,16 @@ async function transcribeWithWhisper(blob) {
   form.append('model', 'whisper-1');
   form.append('response_format', 'json');
   form.append('language', 'en');
-  const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + state.settings.openaiKey },
-    body: form
-  });
+
+  const useProxy = !!state.settings.accessCode;
+  const url = useProxy
+    ? '/api/whisper'
+    : 'https://api.openai.com/v1/audio/transcriptions';
+  const headers = useProxy
+    ? { 'X-Cadence-Access': state.settings.accessCode }
+    : { 'Authorization': 'Bearer ' + state.settings.openaiKey };
+
+  const res = await fetch(url, { method: 'POST', headers, body: form });
   if (!res.ok) {
     const err = await res.text();
     throw new Error('Whisper error: ' + err);
@@ -1491,6 +1507,12 @@ async function getFeedback({ prompt, transcript, durationSec }) {
   const missingTranscript = !transcript || transcript.trim().length < 10;
   const userPrompt = buildFeedbackPrompt({ prompt, transcript, durationSec, missingTranscript });
 
+  // If an access code is set, always go through the shared backend (Anthropic side).
+  // The shared backend uses Anthropic regardless of the local provider picker.
+  if (state.settings.accessCode) {
+    return callAnthropic(userPrompt);
+  }
+
   if (provider === 'anthropic') {
     if (!state.settings.anthropicKey) throw new Error('Anthropic API key not set. Open Settings.');
     return callAnthropic(userPrompt);
@@ -1507,17 +1529,24 @@ async function callAnthropic(userPrompt) {
     'claude-3-5-sonnet-latest',
     'claude-3-5-haiku-latest'
   ];
+
+  const useProxy = !!state.settings.accessCode;
+  const url = useProxy ? '/api/anthropic' : 'https://api.anthropic.com/v1/messages';
+  const baseHeaders = useProxy
+    ? { 'Content-Type': 'application/json', 'X-Cadence-Access': state.settings.accessCode }
+    : {
+        'Content-Type': 'application/json',
+        'x-api-key': state.settings.anthropicKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      };
+
   let lastErr = null;
   for (const model of ANTHROPIC_MODELS) {
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': state.settings.anthropicKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
+        headers: baseHeaders,
         body: JSON.stringify({
           model,
           max_tokens: 2000,
@@ -1538,6 +1567,10 @@ async function callAnthropic(userPrompt) {
         errMsg = errData.error?.message || JSON.stringify(errData);
       } catch { errMsg = await res.text(); }
 
+      // If we're going through the proxy, 401 means a bad access code, not a bad key.
+      if (useProxy && res.status === 401) {
+        throw new Error('Invalid or expired access code. Check Settings.');
+      }
       // If it's auth/credit/rate-limit — no point trying other models, show it now
       if (res.status === 401) throw new Error('Your Anthropic API key is invalid. Check Settings → make sure you pasted the full key starting with sk-ant-.');
       if (res.status === 429) throw new Error('Rate limit or quota reached. Wait a moment, or add credit at console.anthropic.com → Billing.');
@@ -1554,7 +1587,7 @@ async function callAnthropic(userPrompt) {
       lastErr = new Error(`Anthropic (${res.status}): ${errMsg}`);
     } catch (e) {
       // Network/CORS or the explicit throws above
-      if (/invalid|credit|rate limit|quota/i.test(e.message)) throw e;
+      if (/invalid|credit|rate limit|quota|access code/i.test(e.message)) throw e;
       lastErr = e;
     }
   }
@@ -2465,6 +2498,7 @@ $('#export-all').addEventListener('click', async () => {
    17. SETTINGS MODAL
    ------------------------------------------------------------ */
 function openSettings() {
+  $('#setting-access-code').value = state.settings.accessCode || '';
   $('#setting-provider').value = state.settings.provider;
   $('#setting-anthropic-key').value = state.settings.anthropicKey || '';
   $('#setting-openai-key').value = state.settings.openaiKey || '';
@@ -2479,6 +2513,7 @@ $('#settings-modal').addEventListener('click', (e) => {
   if (e.target === $('#settings-modal')) closeSettings();
 });
 $('#settings-save').addEventListener('click', () => {
+  state.settings.accessCode = $('#setting-access-code').value.trim();
   state.settings.provider = $('#setting-provider').value;
   state.settings.anthropicKey = $('#setting-anthropic-key').value.trim();
   state.settings.openaiKey = $('#setting-openai-key').value.trim();
