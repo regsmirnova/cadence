@@ -2027,7 +2027,8 @@ async function runFeedbackFlow(entry) {
   const setStatus = (t) => { const el = $('#feedback-status'); if (el) el.textContent = t; };
 
   const provider = state.settings.provider;
-  const hasKey = (provider === 'anthropic' && state.settings.anthropicKey) ||
+  const hasKey = !!state.settings.accessCode ||
+                 (provider === 'anthropic' && state.settings.anthropicKey) ||
                  (provider === 'openai' && state.settings.openaiKey);
 
   if (!hasKey) {
@@ -2547,7 +2548,7 @@ window.openSettings = openSettings;
    ------------------------------------------------------------ */
 function boot() {
   // First-run onboarding: prompt settings if no key
-  if (!state.settings.anthropicKey && !state.settings.openaiKey) {
+  if (!state.settings.accessCode && !state.settings.anthropicKey && !state.settings.openaiKey) {
     setTimeout(() => {
       toast('Welcome! Add your API key in Settings to enable AI feedback.', 3500);
     }, 800);
